@@ -18,7 +18,7 @@ export class UserService {
 		return user;
 	}
 
-	async findById(id: string) {
+	async findById(id: number) {
 		const [user] = await this.database
 			.select()
 			.from(usersTable)

@@ -45,7 +45,7 @@ export const userModule = new Elysia({ prefix: "/users" })
 		},
 		{
 			params: t.Object({
-				id: t.String({ format: "uuid" }),
+				id: t.Number(),
 			}),
 		},
 	);
