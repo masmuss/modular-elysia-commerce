@@ -41,4 +41,16 @@ export class ProductService {
 
 		return updatedProduct;
 	}
+
+	async restoreStock(id: number, qtyToRestore: number) {
+		const product = await this.getById(id);
+		if (!product) throw new Error("product not found");
+
+		const [updatedProduct] = await this.database
+			.update(productsTable)
+			.set({ stock: product.stock + qtyToRestore })
+			.where(eq(productsTable.id, id));
+
+		return updatedProduct;
+	}
 }

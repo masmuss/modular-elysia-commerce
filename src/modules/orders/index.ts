@@ -45,9 +45,12 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 				});
 			}
 
+			const successfullyDeductedItems: typeof validatedItems = [];
+
 			try {
 				for (const item of validatedItems) {
 					await productService.updateStock(item.productId, item.quantity);
+					successfullyDeductedItems.push(item);
 				}
 
 				const order = await orderService.create(
@@ -62,9 +65,22 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 				});
 			} catch (e) {
 				console.error("checkout failed mid-process:", e);
+
+				for (const item of successfullyDeductedItems) {
+					try {
+						await productService.restoreStock(item.productId, item.quantity);
+						console.log(`restored stock for ${item.productId}`);
+					} catch (rollbackError) {
+						console.error(
+							`CRITICAL: rollback failed for ${item.productId}`,
+							rollbackError,
+						);
+					}
+				}
+
 				return status(500, {
 					status: "error",
-					message: "checkout failed, please try again later",
+					message: "checkout failed, system rolled back safely",
 				});
 			}
 		},
