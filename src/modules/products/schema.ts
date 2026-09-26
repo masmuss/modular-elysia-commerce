@@ -1,11 +1,10 @@
-import { integer, real, text } from "drizzle-orm/sqlite-core/columns";
-import { sqliteTable } from "drizzle-orm/sqlite-core/table";
+import { mysqlTable, int, real, text, varchar } from "drizzle-orm/mysql-core";
 
-export const productsTable = sqliteTable("products", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	name: text("name").notNull(),
+export const productsTable = mysqlTable("products", {
+	id: int("id").primaryKey().autoincrement(),
+	name: varchar("name", { length: 255 }).notNull(),
 	description: text("description"),
 	price: real("price").notNull(),
-	stock: integer("stock").notNull(),
-	createdByUserId: integer("createdByUserId").notNull(),
+	stock: int("stock").notNull(),
+	createdByUserId: int("createdByUserId").notNull(),
 });

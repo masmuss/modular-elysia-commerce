@@ -1,9 +1,11 @@
 import { env } from "bun";
-import Database from "bun:sqlite";
-import { drizzle } from "drizzle-orm/bun-sqlite";
+import { drizzle } from "drizzle-orm/mysql2";
+import mysql from "mysql2/promise";
 
-const connectionString = env.DB_FILE_NAME;
-const sqlite = new Database(connectionString);
-sqlite.run(`PRAGMA journal_mode = WAL;`);
+const poolConnection = mysql.createPool({
+	host: env.DB_HOST,
+	user: env.DB_USER,
+	database: env.DB_DATABASE,
+});
 
-export const db = drizzle({ client: sqlite });
+export const db = drizzle({ client: poolConnection });

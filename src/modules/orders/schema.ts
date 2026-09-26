@@ -1,23 +1,20 @@
 import { sql } from "drizzle-orm";
-import { integer, real, text } from "drizzle-orm/sqlite-core/columns";
-import { sqliteTable } from "drizzle-orm/sqlite-core/table";
+import { mysqlTable, mysqlEnum, int, real, timestamp } from "drizzle-orm/mysql-core";
 
-export const ordersTable = sqliteTable("orders", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	userId: integer("user_id").notNull(),
-	status: text("status", { enum: ["PENDING", "PAID", "FAILED"] })
-		.notNull()
-		.default("PENDING"),
+export const ordersTable = mysqlTable("orders", {
+	id: int("id").primaryKey().autoincrement(),
+	userId: int("user_id").notNull(),
+	status: mysqlEnum("status", ["PENDING", "PAID", "FAILED"]).notNull().default("PENDING"),
 	totalAmount: real("total_amount").notNull(),
-	createdAt: text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
+	createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
-export const orderItemsTable = sqliteTable("order_items", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
-	orderId: integer("order_id")
+export const orderItemsTable = mysqlTable("order_items", {
+	id: int("id").primaryKey().autoincrement(),
+	orderId: int("order_id")
 		.notNull()
 		.references(() => ordersTable.id),
-	productId: integer("product_id").notNull(),
-	quantity: integer("quantity").notNull(),
+	productId: int("product_id").notNull(),
+	quantity: int("quantity").notNull(),
 	priceAtTimeOfOrder: real("price_at_time").notNull(),
 });

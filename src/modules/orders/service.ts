@@ -9,16 +9,15 @@ export class OrderService {
 		items: { productId: number; quantity: number; price: number }[],
 		totalAmount: number,
 	) {
-		return this.database.transaction((tx) => {
-			const order = tx
+		return await this.database.transaction(async (tx) => {
+			const [order] = await tx
 				.insert(ordersTable)
 				.values({
 					userId,
 					totalAmount,
 					status: "PAID",
 				})
-				.returning()
-				.get();
+				.$returningId();
 
 			const orderItemsData = items.map((item) => ({
 				orderId: order.id,
@@ -27,7 +26,7 @@ export class OrderService {
 				priceAtTimeOfOrder: item.price,
 			}));
 
-			tx.insert(orderItemsTable).values(orderItemsData).run();
+			tx.insert(orderItemsTable).values(orderItemsData);
 
 			return order;
 		});

@@ -6,14 +6,16 @@ export class UserService {
 	constructor(private readonly database = db) {}
 
 	async create(email: string, name: string, passwordHash: string) {
+		const [result] = await this.database.insert(usersTable).values({
+			email,
+			name,
+			passwordHash,
+		});
+
 		const [user] = await this.database
-			.insert(usersTable)
-			.values({
-				email,
-				name,
-				passwordHash,
-			})
-			.returning();
+			.select()
+			.from(usersTable)
+			.where(eq(usersTable.id, result.insertId));
 
 		return user;
 	}

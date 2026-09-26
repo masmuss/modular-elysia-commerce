@@ -1,9 +1,9 @@
 {
-  "version": "7",
-  "dialect": "sqlite",
-  "id": "bf1a2386-2ab5-4c4a-9a2a-e2e818b447e1",
+  "version": "6",
+  "dialect": "mysql",
+  "id": "c3a056e2-c49c-4df4-98e0-1d7e4f7e7bb7",
   "prevIds": [
-    "40fd05a0-64ef-48cc-98ad-79d755ef1e21"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -23,40 +23,56 @@
       "entityType": "tables"
     },
     {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": true,
+      "type": "int",
+      "notNull": true,
+      "autoIncrement": true,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "id",
       "entityType": "columns",
       "table": "order_items"
     },
     {
-      "type": "integer",
+      "type": "int",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "order_id",
       "entityType": "columns",
       "table": "order_items"
     },
     {
-      "type": "integer",
+      "type": "int",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "product_id",
       "entityType": "columns",
       "table": "order_items"
     },
     {
-      "type": "integer",
+      "type": "int",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "quantity",
       "entityType": "columns",
@@ -65,38 +81,54 @@
     {
       "type": "real",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "price_at_time",
       "entityType": "columns",
       "table": "order_items"
     },
     {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": true,
+      "type": "int",
+      "notNull": true,
+      "autoIncrement": true,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "id",
       "entityType": "columns",
       "table": "orders"
     },
     {
-      "type": "integer",
+      "type": "int",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "user_id",
       "entityType": "columns",
       "table": "orders"
     },
     {
-      "type": "text",
+      "type": "enum('PENDING','PAID','FAILED')",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": "'PENDING'",
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "status",
       "entityType": "columns",
@@ -105,38 +137,54 @@
     {
       "type": "real",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "total_amount",
       "entityType": "columns",
       "table": "orders"
     },
     {
-      "type": "text",
+      "type": "timestamp",
       "notNull": true,
-      "autoincrement": false,
-      "default": "CURRENT_TIMESTAMP",
+      "autoIncrement": false,
+      "default": "(CURRENT_TIMESTAMP)",
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "created_at",
       "entityType": "columns",
       "table": "orders"
     },
     {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": true,
+      "type": "int",
+      "notNull": true,
+      "autoIncrement": true,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "id",
       "entityType": "columns",
       "table": "products"
     },
     {
-      "type": "text",
+      "type": "varchar(255)",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "name",
       "entityType": "columns",
@@ -145,8 +193,12 @@
     {
       "type": "text",
       "notNull": false,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "description",
       "entityType": "columns",
@@ -155,58 +207,82 @@
     {
       "type": "real",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "price",
       "entityType": "columns",
       "table": "products"
     },
     {
-      "type": "integer",
+      "type": "int",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "stock",
       "entityType": "columns",
       "table": "products"
     },
     {
-      "type": "integer",
+      "type": "int",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "createdByUserId",
       "entityType": "columns",
       "table": "products"
     },
     {
-      "type": "integer",
-      "notNull": false,
-      "autoincrement": true,
+      "type": "int",
+      "notNull": true,
+      "autoIncrement": true,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "id",
       "entityType": "columns",
       "table": "users"
     },
     {
-      "type": "text",
+      "type": "varchar(255)",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "email",
       "entityType": "columns",
       "table": "users"
     },
     {
-      "type": "text",
+      "type": "varchar(255)",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "name",
       "entityType": "columns",
@@ -215,12 +291,64 @@
     {
       "type": "text",
       "notNull": true,
-      "autoincrement": false,
+      "autoIncrement": false,
       "default": null,
+      "onUpdateNow": false,
+      "onUpdateNowFsp": null,
+      "charSet": null,
+      "collation": null,
       "generated": null,
       "name": "passwordHash",
       "entityType": "columns",
       "table": "users"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "name": "PRIMARY",
+      "table": "order_items",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "name": "PRIMARY",
+      "table": "orders",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "name": "PRIMARY",
+      "table": "products",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "name": "PRIMARY",
+      "table": "users",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        {
+          "value": "email",
+          "isExpression": false
+        }
+      ],
+      "isUnique": true,
+      "using": null,
+      "algorithm": null,
+      "lock": null,
+      "nameExplicit": false,
+      "name": "email_unique",
+      "table": "users",
+      "entityType": "indexes"
     },
     {
       "columns": [
@@ -233,54 +361,9 @@
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "fk_order_items_order_id_orders_id_fk",
+      "name": "order_items_order_id_orders_id_fkey",
       "entityType": "fks",
       "table": "order_items"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "order_items_pk",
-      "table": "order_items",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "orders_pk",
-      "table": "orders",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "products_pk",
-      "table": "products",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "id"
-      ],
-      "nameExplicit": false,
-      "name": "users_pk",
-      "table": "users",
-      "entityType": "pks"
-    },
-    {
-      "columns": [
-        "email"
-      ],
-      "nameExplicit": false,
-      "name": "users_email_unique",
-      "entityType": "uniques",
-      "table": "users"
     }
   ],
   "renames": []

@@ -12,13 +12,10 @@ export class ProductService {
 		stock: number;
 		userId: number;
 	}) {
-		const [product] = await this.database
-			.insert(productsTable)
-			.values({
-				...data,
-				createdByUserId: data.userId,
-			})
-			.returning();
+		const [product] = await this.database.insert(productsTable).values({
+			...data,
+			createdByUserId: data.userId,
+		});
 
 		return product;
 	}
@@ -40,8 +37,7 @@ export class ProductService {
 		const [updatedProduct] = await this.database
 			.update(productsTable)
 			.set({ stock: product.stock - qtyToReduce })
-			.where(eq(productsTable.id, id))
-			.returning();
+			.where(eq(productsTable.id, id));
 
 		return updatedProduct;
 	}

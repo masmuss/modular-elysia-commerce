@@ -3,8 +3,10 @@ import { defineConfig } from "drizzle-kit";
 export default defineConfig({
 	out: "./drizzle",
 	schema: "./src/modules/**/schema.ts",
-	dialect: "sqlite",
+	dialect: "mysql",
 	dbCredentials: {
-		url: process.env.DB_FILE_NAME ?? "db.sqlite",
+		database: process.env.DB_DATABASE ?? "ecommerce",
+		host: process.env.DB_HOST ?? "localhost",
+		user: process.env.DB_USER ?? "root",
 	},
 });

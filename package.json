@@ -3,12 +3,16 @@
   "version": "1.0.50",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch src/index.ts"
+    "dev": "bun run --watch src/index.ts",
+    "db:generate": "bun x drizzle-kit generate",
+    "db:push": "bun x drizzle-kit push",
+    "db:migrate": "bun x drizzle-kit migrate"
   },
   "dependencies": {
     "dotenv": "^18.0.4",
     "drizzle-orm": "^1.0.0-rc.4",
-    "elysia": "latest"
+    "elysia": "latest",
+    "mysql2": "^3.24.4"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",
