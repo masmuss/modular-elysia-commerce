@@ -26,7 +26,7 @@ export class OrderService {
 				priceAtTimeOfOrder: item.price,
 			}));
 
-			tx.insert(orderItemsTable).values(orderItemsData);
+			await tx.insert(orderItemsTable).values(orderItemsData);
 
 			return order;
 		});

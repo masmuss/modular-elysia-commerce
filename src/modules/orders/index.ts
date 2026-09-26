@@ -19,7 +19,7 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 			}
 
 			let totalAmount = 0;
-			const validatedItems = [];
+			const validatedItems: { productId: number; quantity: number; price: number }[] = [];
 
 			for (const item of body.items) {
 				const product = await productService.getById(item.productId);
@@ -33,7 +33,7 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 				if (product.stock < item.quantity)
 					return status(400, {
 						status: "error",
-						message: `inufficient stock for ${product.name}`,
+						message: `insufficient stock for ${product.name}`,
 					});
 
 				totalAmount += product.price * item.quantity;
