@@ -27,7 +27,7 @@ export class UserService {
 		return user;
 	}
 
-	async isExists(id: string) {
+	async isExists(id: number) {
 		const user = await this.findById(id);
 
 		return !!user;

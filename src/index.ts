@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import { userModule } from "./modules/users";
 import { productModule } from "./modules/products";
+import { orderModule } from "./modules/orders";
 
 const app = new Elysia()
 	.onError(({ code, error }) => {
@@ -13,6 +14,7 @@ const app = new Elysia()
 	.get("/health", () => ({ status: "ok" }))
 	.use(userModule)
 	.use(productModule)
+	.use(orderModule)
 	.listen(3000);
 
 console.log(
