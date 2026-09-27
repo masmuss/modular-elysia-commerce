@@ -3,6 +3,19 @@ import { userModule } from "../users";
 import { productModule } from "../products";
 import { OrderService } from "./service";
 import { CheckoutItem } from "./types";
+import { createInsertSchema } from "drizzle-typebox";
+import { orderItemsTable } from "./schema";
+
+const checkoutItemSchema = t.Omit(createInsertSchema(orderItemsTable), [
+	"id",
+	"orderId",
+	"priceAtTimeOfOrder",
+]);
+
+const checkoutBody = t.Object({
+	userId: t.Number(),
+	items: t.Array(checkoutItemSchema, { minItems: 1 }),
+});
 
 export const orderModule = new Elysia({ prefix: "/orders" })
 	.use(userModule)
@@ -86,14 +99,6 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 			}
 		},
 		{
-			body: t.Object({
-				userId: t.Number(),
-				items: t.Array(
-					t.Object({
-						productId: t.Number(),
-						quantity: t.Number({ minimum: 1 }),
-					}),
-				),
-			}),
+			body: checkoutBody,
 		},
 	);

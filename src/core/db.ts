@@ -1,6 +1,6 @@
 import { env } from "bun";
 import { drizzle } from "drizzle-orm/mysql2";
-import mysql from "mysql2/promise";
+import mysql from "mysql2";
 
 const poolConnection = mysql.createPool({
 	host: env.DB_HOST,
