@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "@/core/db";
+import { BaseService } from "@/core/service";
 import {
 	permissionsTable,
 	rolePermissionsTable,
@@ -7,9 +7,7 @@ import {
 	userRolesTable,
 } from "./schema";
 
-export class IamService {
-	constructor(private readonly database = db) {}
-
+export class IamService extends BaseService {
 	async hasPermission(
 		userId: string,
 		requiredAction: string,

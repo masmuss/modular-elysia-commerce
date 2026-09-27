@@ -1,13 +1,11 @@
 import { eq } from "drizzle-orm";
-import { db } from "@/core/db";
 import { eventBus } from "@/core/event-bus";
+import { BaseService } from "@/core/service";
 import { User } from "@/modules/users/types";
 import { orderItemsTable, ordersTable } from "./schema";
 import { CheckoutItem } from "./types";
 
-export class OrderService {
-	constructor(private readonly database = db) {}
-
+export class OrderService extends BaseService {
 	async createPendingOrder(
 		user: User,
 		items: CheckoutItem[],

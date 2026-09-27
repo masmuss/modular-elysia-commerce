@@ -1,11 +1,9 @@
 import { eq, sql } from "drizzle-orm";
-import { db } from "@/core/db";
+import { BaseService } from "@/core/service";
 import { productsTable } from "./schema";
 import { CreateProduct, Product } from "./types";
 
-export class ProductService {
-	constructor(private readonly database = db) {}
-
+export class ProductService extends BaseService {
 	async create(data: CreateProduct): Promise<Product> {
 		const [result] = await this.database
 			.insert(productsTable)
