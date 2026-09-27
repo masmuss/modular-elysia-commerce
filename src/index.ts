@@ -2,6 +2,7 @@ import { Elysia } from "elysia";
 import { userModule } from "./modules/users";
 import { productModule } from "./modules/products";
 import { orderModule } from "./modules/orders";
+import { auth } from "./core/auth";
 
 const app = new Elysia()
 	.onError(({ code, error }) => {
@@ -12,6 +13,9 @@ const app = new Elysia()
 		};
 	})
 	.get("/health", () => ({ status: "ok" }))
+	.all("/auth", async ({ request }) => {
+		return auth.handler(request);
+	})
 	.use(userModule)
 	.use(productModule)
 	.use(orderModule)
