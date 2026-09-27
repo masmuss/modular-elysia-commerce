@@ -6,11 +6,14 @@ import { CheckoutItem } from "./types";
 import { createInsertSchema } from "drizzle-typebox";
 import { orderItemsTable } from "./schema";
 
-const checkoutItemSchema = t.Omit(createInsertSchema(orderItemsTable), [
-	"id",
-	"orderId",
-	"priceAtTimeOfOrder",
-]);
+const {
+	id,
+	orderId,
+	priceAtTimeOfOrder,
+	...checkoutColumns
+} = createInsertSchema(orderItemsTable).properties;
+
+const checkoutItemSchema = t.Object(checkoutColumns);
 
 const checkoutBody = t.Object({
 	userId: t.Number(),

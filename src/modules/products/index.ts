@@ -1,11 +1,14 @@
 import Elysia, { t } from "elysia";
+import { createInsertSchema } from "drizzle-typebox";
 import { userModule } from "../users";
 import { ProductService } from "./service";
-import { createInsertSchema } from "drizzle-typebox";
 import { productsTable } from "./schema";
 
+const { id, createdByUserId, ...clientColumns } =
+	createInsertSchema(productsTable).properties;
+
 const createProductBody = t.Composite([
-	t.Omit(createInsertSchema(productsTable), ["id", "createdByUserId"]),
+	t.Object(clientColumns),
 	t.Object({ userId: t.Number() }),
 ]);
 
@@ -21,12 +24,10 @@ export const productModule = new Elysia({ prefix: "/products" })
 				return status(400, { status: "error", message: "invalid user" });
 			}
 
+			const { userId, ...productInput } = body;
 			const product = await productService.create({
-				name: body.name,
-				description: body.description,
-				price: body.price,
-				stock: body.stock,
-				createdByUserId: body.userId,
+				...productInput,
+				createdByUserId: userId,
 			});
 			return status(201, { status: "success", data: product });
 		},
