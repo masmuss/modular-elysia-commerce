@@ -1,10 +1,21 @@
 import { sql } from "drizzle-orm";
-import { mysqlTable, mysqlEnum, int, real, timestamp } from "drizzle-orm/mysql-core";
+import {
+	mysqlTable,
+	mysqlEnum,
+	int,
+	real,
+	timestamp,
+	varchar,
+} from "drizzle-orm/mysql-core";
 
 export const ordersTable = mysqlTable("orders", {
 	id: int("id").primaryKey().autoincrement(),
 	userId: int("user_id").notNull(),
-	status: mysqlEnum("status", ["PENDING", "PAID", "FAILED"]).notNull().default("PENDING"),
+	snapShotUserName: varchar("snapshot_user_name", { length: 255 }).notNull(),
+	snapshotUserEmail: varchar("snapshot_user_email", { length: 255 }).notNull(),
+	status: mysqlEnum("status", ["PENDING", "PAID", "FAILED"])
+		.notNull()
+		.default("PENDING"),
 	totalAmount: real("total_amount").notNull(),
 	createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });

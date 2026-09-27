@@ -5,13 +5,10 @@ import { OrderService } from "./service";
 import { CheckoutItem } from "./types";
 import { createInsertSchema } from "drizzle-typebox";
 import { orderItemsTable } from "./schema";
+import { User } from "../users/types";
 
-const {
-	id,
-	orderId,
-	priceAtTimeOfOrder,
-	...checkoutColumns
-} = createInsertSchema(orderItemsTable).properties;
+const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
+	createInsertSchema(orderItemsTable).properties;
 
 const checkoutItemSchema = t.Object(checkoutColumns);
 
@@ -27,8 +24,8 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 	.post(
 		"/checkout",
 		async ({ body, userService, productService, orderService, status }) => {
-			const isUserValid = await userService.isExists(body.userId);
-			if (!isUserValid) {
+			const user = await userService.findById(body.userId);
+			if (!user) {
 				return status(400, {
 					status: "error",
 					message: "user invalid",
@@ -71,7 +68,7 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 				}
 
 				const order = await orderService.create(
-					body.userId,
+					user,
 					validatedItems,
 					totalAmount,
 				);
