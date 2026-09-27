@@ -1,34 +1,27 @@
 import Elysia, { t } from "elysia";
 import { createInsertSchema } from "drizzle-typebox";
-import { userModule } from "@/modules/users";
+import { getSession } from "@/plugins/auth";
 import { ProductService } from "./service";
 import { productsTable } from "./schema";
 import "./listeners";
 
-const { id, createdByUserId, ...clientColumns } =
+const { id, createdByUserId, deletedAt, ...clientColumns } =
 	createInsertSchema(productsTable).properties;
 
-const createProductBody = t.Composite([
-	t.Object(clientColumns),
-	t.Object({ userId: t.String({ format: "uuid" }) }),
-]);
+const createProductBody = t.Object(clientColumns);
 
 export const productModule = new Elysia({ prefix: "/products" })
-	.use(userModule)
 	.decorate("productService", new ProductService())
 	.post(
 		"/",
-		async ({ body, productService, userService, status }) => {
-			const isUserValid = await userService.findById(body.userId);
+		async ({ body, productService, request, status }) => {
+			const session = await getSession(request.headers);
+			if (!session)
+				return status(401, { status: "error", message: "unauthorized" });
 
-			if (!isUserValid) {
-				return status(400, { status: "error", message: "invalid user" });
-			}
-
-			const { userId, ...productInput } = body;
 			const product = await productService.create({
-				...productInput,
-				createdByUserId: userId,
+				...body,
+				createdByUserId: session.user.id,
 			});
 			return status(201, { status: "success", data: product });
 		},

@@ -1,10 +1,10 @@
 import Elysia, { t } from "elysia";
-import { userModule } from "@/modules/users";
-import { CheckoutItem } from "./types";
 import { createInsertSchema } from "drizzle-typebox";
+import { getSession } from "@/plugins/auth";
 import { orderItemsTable } from "./schema";
 import { productModule } from "@/modules/products";
 import { OrderService } from "./service";
+import { CheckoutItem } from "./types";
 import "./listeners";
 
 const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
@@ -13,25 +13,20 @@ const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
 const checkoutItemSchema = t.Object(checkoutColumns);
 
 const checkoutBody = t.Object({
-	userId: t.String({ format: "uuid" }),
 	items: t.Array(checkoutItemSchema, { minItems: 1 }),
 });
 
 export const orderModule = new Elysia({ prefix: "/orders" })
-	.use(userModule)
 	.use(productModule)
 	.decorate("orderService", new OrderService())
 	.post(
 		"/checkout",
-		async ({ body, userService, productService, orderService, status }) => {
-			const user = await userService.findById(body.userId);
-			if (!user) {
-				return status(400, {
-					status: "error",
-					message: "user invalid",
-				});
-			}
+		async ({ body, productService, orderService, request, status }) => {
+			const session = await getSession(request.headers);
+			if (!session)
+				return status(401, { status: "error", message: "unauthorized" });
 
+			const user = session.user;
 			let totalAmount = 0;
 			const itemsWithPrice: CheckoutItem[] = [];
 
@@ -54,7 +49,7 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 			}
 
 			const order = await orderService.createPendingOrder(
-				user,
+				{ id: user.id, name: user.name, email: user.email },
 				itemsWithPrice,
 				totalAmount,
 			);

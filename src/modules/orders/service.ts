@@ -1,13 +1,12 @@
 import { eq } from "drizzle-orm";
 import { eventBus } from "@/core/event-bus";
 import { BaseService } from "@/core/service";
-import { User } from "@/modules/users/types";
 import { orderItemsTable, ordersTable } from "./schema";
 import { CheckoutItem } from "./types";
 
 export class OrderService extends BaseService {
 	async createPendingOrder(
-		user: User,
+		user: { id: string; name: string; email: string },
 		items: CheckoutItem[],
 		totalAmount: number,
 	) {

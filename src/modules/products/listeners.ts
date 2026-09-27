@@ -5,9 +5,7 @@ const productService = new ProductService();
 
 eventBus.on("ORDER_CREATE_PENDING", async (payload) => {
 	try {
-		for (const item of payload.items) {
-			await productService.updateStock(item.productId, item.quantity);
-		}
+		await productService.reserveStock(payload.items);
 
 		eventBus.emit("STOCK_RESERVED", { orderId: payload.orderId });
 	} catch (error: unknown) {

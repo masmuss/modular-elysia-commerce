@@ -1,8 +1,8 @@
 import Elysia from "elysia";
 import { iamService } from "@/modules/iam/service";
-import { auth } from "@/core/auth";
+import { auth } from "@/modules/auth";
 
-export const iamMacro = new Elysia({ name: "core.iam" }).macro({
+export const iamMacro = new Elysia({ name: "plugin.iam" }).macro({
 	requirePermission: (action: string) => ({
 		async beforeHandle({ status, request: { headers } }) {
 			const session = await auth.api.getSession({ headers });

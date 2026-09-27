@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, gte, sql } from "drizzle-orm";
 import { BaseService } from "@/core/service";
 import { productsTable } from "./schema";
 import { CreateProduct, Product } from "./types";
@@ -27,14 +27,23 @@ export class ProductService extends BaseService {
 		return product;
 	}
 
-	async updateStock(id: number, qtyToReduce: number): Promise<void> {
-		const [result] = await this.database
-			.update(productsTable)
-			.set({ stock: sql`${productsTable.stock} - ${qtyToReduce}` })
-			.where(eq(productsTable.id, id));
+	async reserveStock(items: { productId: number; quantity: number }[]): Promise<void> {
+		await this.database.transaction(async (tx) => {
+			for (const item of items) {
+				const [result] = await tx
+					.update(productsTable)
+					.set({ stock: sql`${productsTable.stock} - ${item.quantity}` })
+					.where(
+						and(
+							eq(productsTable.id, item.productId),
+							gte(productsTable.stock, item.quantity),
+						),
+					);
 
-		if (result.affectedRows === 0)
-			throw new Error("product not found or insufficient stock");
+				if (result.affectedRows === 0)
+					throw new Error(`insufficient stock for product ${item.productId}`);
+			}
+		});
 	}
 
 	async restoreStock(id: number, qtyToRestore: number): Promise<void> {

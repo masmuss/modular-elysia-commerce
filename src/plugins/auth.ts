@@ -1,19 +1,12 @@
 import Elysia from "elysia";
-import { auth } from "@/core/auth";
+import { auth } from "@/modules/auth";
 
-export const authMiddleware = new Elysia({ name: "plugin.auth" })
-	.mount(auth.handler)
-	.macro({
-		auth: {
-			async resolve({ status, request: { headers } }) {
-				const session = await auth.api.getSession({ headers });
-				if (!session)
-					return status(401, { status: "error", message: "unauthorized" });
+export const authRoutes = new Elysia({ name: "plugin.auth.routes" }).mount(
+	auth.handler,
+);
 
-				return {
-					user: session.user,
-					session: session.session,
-				};
-			},
-		},
-	});
+export const getSession = async (headers: Headers) =>
+	auth.api.getSession({ headers });
+
+export const unauthorized = (status: (c: number, b: unknown) => unknown) =>
+	status(401, { status: "error" as const, message: "unauthorized" });

@@ -2,18 +2,19 @@ import { Elysia } from "elysia";
 import { userModule } from "@/modules/users";
 import { productModule } from "@/modules/products";
 import { orderModule } from "@/modules/orders";
-import { authMiddleware } from "@/plugins/auth";
+import { authRoutes } from "@/plugins/auth";
+import { iamMacro } from "@/plugins/iam";
+import { statusFromCode, toErrorResponse } from "@/plugins/error";
 
 const app = new Elysia()
-	.onError(({ code, error }) => {
+	.onError(({ code, error, set }) => {
 		console.error(`[${code}]`, error);
-		return {
-			status: "error",
-			message: error,
-		};
+		set.status = statusFromCode(code);
+		return toErrorResponse(code, error);
 	})
 	.get("/health", () => ({ status: "ok" }))
-	.use(authMiddleware)
+	.use(authRoutes)
+	.use(iamMacro)
 	.use(userModule)
 	.use(productModule)
 	.use(orderModule)

@@ -1,12 +1,10 @@
 import { EventEmitter } from "node:events";
-import { CheckoutItem } from "@/modules/orders/types";
-import { User } from "@/modules/users/types";
 
 export type AppEvents = {
 	ORDER_CREATE_PENDING: {
 		orderId: number;
-		user: User;
-		items: Omit<CheckoutItem, "priceAtTimeOfOrder">[];
+		user: { id: string; name: string; email: string };
+		items: { productId: number; quantity: number }[];
 	};
 	STOCK_RESERVED: { orderId: number };
 	STOCK_RESERVATION_FAILED: { orderId: number; reason: string };
