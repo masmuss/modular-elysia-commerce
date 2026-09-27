@@ -11,5 +11,5 @@ export const usersTable = mysqlTable("users", {
 	email: varchar("email", { length: 255 }).notNull().unique(),
 	name: varchar("name", { length: 255 }).notNull(),
 	passwordHash: text("password_hash").notNull(),
-	deletedAt: timestamp("deleted_at").$default(() => new Date()),
+	deletedAt: timestamp("deleted_at"),
 });

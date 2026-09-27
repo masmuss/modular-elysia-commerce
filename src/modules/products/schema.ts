@@ -14,5 +14,5 @@ export const productsTable = mysqlTable("products", {
 	price: real("price").notNull(),
 	stock: int("stock").notNull(),
 	createdByUserId: int("created_by_user_id").notNull(),
-	deletedAt: timestamp("deleted_at").$default(() => new Date()),
+	deletedAt: timestamp("deleted_at"),
 });
