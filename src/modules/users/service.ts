@@ -1,16 +1,13 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../core/db";
 import { usersTable } from "./schema";
+import { CreateUser, User } from "./types";
 
 export class UserService {
 	constructor(private readonly database = db) {}
 
-	async create(email: string, name: string, passwordHash: string) {
-		const [result] = await this.database.insert(usersTable).values({
-			email,
-			name,
-			passwordHash,
-		});
+	async create(data: CreateUser): Promise<User> {
+		const [result] = await this.database.insert(usersTable).values(data);
 
 		const [user] = await this.database
 			.select()
@@ -20,7 +17,7 @@ export class UserService {
 		return user;
 	}
 
-	async findById(id: number) {
+	async findById(id: number): Promise<User> {
 		const [user] = await this.database
 			.select()
 			.from(usersTable)
@@ -29,7 +26,7 @@ export class UserService {
 		return user;
 	}
 
-	async isExists(id: number) {
+	async isExists(id: number): Promise<boolean> {
 		const user = await this.findById(id);
 
 		return !!user;

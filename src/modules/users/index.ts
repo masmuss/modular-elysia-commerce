@@ -1,6 +1,7 @@
 import Elysia, { t } from "elysia";
 import { UserService } from "./service";
 import { password } from "bun";
+import { User } from "./types";
 
 export const userModule = new Elysia({ prefix: "/users" })
 	.decorate("userService", new UserService())
@@ -8,7 +9,10 @@ export const userModule = new Elysia({ prefix: "/users" })
 		"/",
 		async ({ body, userService }) => {
 			const hash = await password.hash(body.password);
-			const user = await userService.create(body.email, body.name, hash);
+			const user: User = await userService.create({
+				...body,
+				passwordHash: hash,
+			});
 
 			return {
 				status: "success",
@@ -30,7 +34,7 @@ export const userModule = new Elysia({ prefix: "/users" })
 	.get(
 		"/:id",
 		async ({ params, status, userService }) => {
-			const user = await userService.findById(params.id);
+			const user: User = await userService.findById(params.id);
 			if (!user)
 				return status(404, { status: "error", message: "user not found" });
 
