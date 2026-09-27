@@ -3,6 +3,7 @@ import { userModule } from "./modules/users";
 import { productModule } from "./modules/products";
 import { orderModule } from "./modules/orders";
 import { auth } from "./core/auth";
+import { authMiddleware } from "./plugins/auth";
 
 const app = new Elysia()
 	.onError(({ code, error }) => {
@@ -13,7 +14,7 @@ const app = new Elysia()
 		};
 	})
 	.get("/health", () => ({ status: "ok" }))
-	.mount("/auth", auth.handler)
+	.use(authMiddleware)
 	.use(userModule)
 	.use(productModule)
 	.use(orderModule)
