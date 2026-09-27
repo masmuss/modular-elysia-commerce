@@ -1,5 +1,5 @@
 import Elysia from "elysia";
-import { auth } from "../core/auth";
+import { auth } from "@/core/auth";
 
 export const authMiddleware = new Elysia({ name: "plugin.auth" })
 	.mount(auth.handler)

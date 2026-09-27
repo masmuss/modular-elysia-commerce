@@ -1,4 +1,4 @@
-import { eventBus } from "../../core/event-bus";
+import { eventBus } from "@/core/event-bus";
 import { OrderService } from "./service";
 
 const orderService = new OrderService();

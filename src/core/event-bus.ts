@@ -1,6 +1,6 @@
 import { EventEmitter } from "node:events";
-import { CheckoutItem } from "../modules/orders/types";
-import { User } from "../modules/users/types";
+import { CheckoutItem } from "@/modules/orders/types";
+import { User } from "@/modules/users/types";
 
 export type AppEvents = {
 	ORDER_CREATE_PENDING: {

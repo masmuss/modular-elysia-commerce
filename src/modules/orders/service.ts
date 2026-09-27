@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
-import { db } from "../../core/db";
-import { eventBus, type AppEvents } from "../../core/event-bus";
-import { User } from "../users/types";
+import { db } from "@/core/db";
+import { eventBus } from "@/core/event-bus";
+import { User } from "@/modules/users/types";
 import { orderItemsTable, ordersTable } from "./schema";
 import { CheckoutItem } from "./types";
 

@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { db } from "../../core/db";
+import { db } from "@/core/db";
 import {
 	permissionsTable,
 	rolePermissionsTable,

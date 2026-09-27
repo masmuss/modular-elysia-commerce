@@ -1,9 +1,8 @@
 import { Elysia } from "elysia";
-import { userModule } from "./modules/users";
-import { productModule } from "./modules/products";
-import { orderModule } from "./modules/orders";
-import { auth } from "./core/auth";
-import { authMiddleware } from "./plugins/auth";
+import { userModule } from "@/modules/users";
+import { productModule } from "@/modules/products";
+import { orderModule } from "@/modules/orders";
+import { authMiddleware } from "@/plugins/auth";
 
 const app = new Elysia()
 	.onError(({ code, error }) => {

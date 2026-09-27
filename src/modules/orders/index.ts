@@ -1,9 +1,9 @@
 import Elysia, { t } from "elysia";
-import { userModule } from "../users";
+import { userModule } from "@/modules/users";
 import { CheckoutItem } from "./types";
 import { createInsertSchema } from "drizzle-typebox";
 import { orderItemsTable } from "./schema";
-import { productModule } from "../products";
+import { productModule } from "@/modules/products";
 import { OrderService } from "./service";
 import "./listeners";
 
