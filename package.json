@@ -4,9 +4,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "bun run --watch src/index.ts",
-    "db:generate": "bun x drizzle-kit generate",
-    "db:push": "bun x drizzle-kit push",
-    "db:migrate": "bun x drizzle-kit migrate"
+    "db:generate": "drizzle-kit generate",
+    "db:check": "drizzle-kit check",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "better-auth": "^1.7.6",
@@ -23,7 +24,7 @@
     "tsx": "^4.23.15"
   },
   "overrides": {
-    "@sinclair/typebox": "0.32.4"
+    "@sinclair/typebox": "^0.34.52"
   },
   "module": "src/index.js"
 }

@@ -13,6 +13,6 @@ export const productsTable = mysqlTable("products", {
 	description: text("description"),
 	price: real("price").notNull(),
 	stock: int("stock").notNull(),
-	createdByUserId: varchar("created_by_user_id").notNull(),
+	createdByUserId: varchar("created_by_user_id", { length: 36 }).notNull(),
 	deletedAt: timestamp("deleted_at"),
 });
