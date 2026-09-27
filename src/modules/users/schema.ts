@@ -6,9 +6,3 @@ export const usersTable = mysqlTable("users", {
 	name: varchar("name", { length: 255 }).notNull(),
 	passwordHash: text("passwordHash").notNull(),
 });
-
-export const table = {
-	usersTable,
-} as const;
-
-export type Table = typeof table;
