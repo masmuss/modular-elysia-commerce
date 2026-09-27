@@ -7,21 +7,21 @@ export const userModule = new Elysia({ prefix: "/users" })
 	.decorate("userService", new UserService())
 	.post(
 		"/",
-		async ({ body, userService }) => {
+		async ({ body, userService, status }) => {
 			const hash = await password.hash(body.password);
 			const user: User = await userService.create({
 				...body,
 				passwordHash: hash,
 			});
 
-			return {
+			return status(201, {
 				status: "success",
 				data: {
 					id: user.id,
 					email: user.email,
 					name: user.name,
 				},
-			};
+			});
 		},
 		{
 			body: t.Object({
@@ -38,14 +38,14 @@ export const userModule = new Elysia({ prefix: "/users" })
 			if (!user)
 				return status(404, { status: "error", message: "user not found" });
 
-			return {
+			return status(200, {
 				status: "success",
 				data: {
 					id: user.id,
 					email: user.email,
 					name: user.name,
 				},
-			};
+			});
 		},
 		{
 			params: t.Object({
