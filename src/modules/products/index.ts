@@ -10,7 +10,7 @@ const { id, createdByUserId, ...clientColumns } =
 
 const createProductBody = t.Composite([
 	t.Object(clientColumns),
-	t.Object({ userId: t.Number() }),
+	t.Object({ userId: t.String({ format: "uuid" }) }),
 ]);
 
 export const productModule = new Elysia({ prefix: "/products" })

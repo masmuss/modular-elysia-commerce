@@ -10,7 +10,7 @@ import {
 
 export const ordersTable = mysqlTable("orders", {
 	id: int("id").primaryKey().autoincrement(),
-	userId: int("user_id").notNull(),
+	userId: varchar("user_id").notNull(),
 	snapShotUserName: varchar("snapshot_user_name", { length: 255 }).notNull(),
 	snapshotUserEmail: varchar("snapshot_user_email", { length: 255 }).notNull(),
 	status: mysqlEnum("status", ["PENDING", "PAID", "FAILED"])

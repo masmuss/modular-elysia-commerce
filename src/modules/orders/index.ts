@@ -13,7 +13,7 @@ const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
 const checkoutItemSchema = t.Object(checkoutColumns);
 
 const checkoutBody = t.Object({
-	userId: t.Number(),
+	userId: t.String({ format: "uuid" }),
 	items: t.Array(checkoutItemSchema, { minItems: 1 }),
 });
 

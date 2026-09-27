@@ -13,9 +13,7 @@ const app = new Elysia()
 		};
 	})
 	.get("/health", () => ({ status: "ok" }))
-	.all("/auth", async ({ request }) => {
-		return auth.handler(request);
-	})
+	.mount("/auth", auth.handler)
 	.use(userModule)
 	.use(productModule)
 	.use(orderModule)
