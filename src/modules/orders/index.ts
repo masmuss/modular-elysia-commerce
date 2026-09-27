@@ -3,9 +3,9 @@ import { userModule } from "../users";
 import { CheckoutItem } from "./types";
 import { createInsertSchema } from "drizzle-typebox";
 import { orderItemsTable } from "./schema";
-import { User } from "../users/types";
 import { productModule } from "../products";
 import { OrderService } from "./service";
+import "./listeners";
 
 const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
 	createInsertSchema(orderItemsTable).properties;

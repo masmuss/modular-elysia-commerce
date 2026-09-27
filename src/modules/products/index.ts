@@ -3,6 +3,7 @@ import { createInsertSchema } from "drizzle-typebox";
 import { userModule } from "../users";
 import { ProductService } from "./service";
 import { productsTable } from "./schema";
+import "./listeners";
 
 const { id, createdByUserId, ...clientColumns } =
 	createInsertSchema(productsTable).properties;
