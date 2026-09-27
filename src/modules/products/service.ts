@@ -45,13 +45,4 @@ export class ProductService extends BaseService {
 			}
 		});
 	}
-
-	async restoreStock(id: number, qtyToRestore: number): Promise<void> {
-		const [result] = await this.database
-			.update(productsTable)
-			.set({ stock: sql`${productsTable.stock} + ${qtyToRestore}` })
-			.where(eq(productsTable.id, id));
-
-		if (result.affectedRows === 0) throw new Error("product not found");
-	}
 }

@@ -1,17 +1,22 @@
 import Elysia, { t } from "elysia";
 import { createInsertSchema } from "drizzle-typebox";
 import { getSession } from "@/plugins/auth";
+import { iamMacro } from "@/plugins/iam";
 import { ProductService } from "./service";
 import { productsTable } from "./schema";
-import "./listeners";
+import { registerProductListeners } from "./listeners";
 
 const { id, createdByUserId, deletedAt, ...clientColumns } =
 	createInsertSchema(productsTable).properties;
 
 const createProductBody = t.Object(clientColumns);
 
+const productService = new ProductService();
+registerProductListeners(productService);
+
 export const productModule = new Elysia({ prefix: "/products" })
-	.decorate("productService", new ProductService())
+	.use(iamMacro)
+	.decorate("productService", productService)
 	.post(
 		"/",
 		async ({ body, productService, request, status }) => {
@@ -27,6 +32,7 @@ export const productModule = new Elysia({ prefix: "/products" })
 		},
 		{
 			body: createProductBody,
+			requirePermission: "product:create",
 		},
 	)
 	.get(

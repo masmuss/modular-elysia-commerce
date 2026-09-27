@@ -3,7 +3,7 @@ import {
 	mysqlTable,
 	mysqlEnum,
 	int,
-	real,
+	decimal,
 	timestamp,
 	varchar,
 } from "drizzle-orm/mysql-core";
@@ -16,7 +16,7 @@ export const ordersTable = mysqlTable("orders", {
 	status: mysqlEnum("status", ["PENDING", "PAID", "FAILED"])
 		.notNull()
 		.default("PENDING"),
-	totalAmount: real("total_amount").notNull(),
+	totalAmount: decimal("total_amount", { precision: 14, scale: 2, mode: "number" }).notNull(),
 	createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
@@ -27,5 +27,9 @@ export const orderItemsTable = mysqlTable("order_items", {
 		.references(() => ordersTable.id),
 	productId: int("product_id").notNull(),
 	quantity: int("quantity").notNull(),
-	priceAtTimeOfOrder: real("price_at_time").notNull(),
+	priceAtTimeOfOrder: decimal("price_at_time", {
+		precision: 12,
+		scale: 2,
+		mode: "number",
+	}).notNull(),
 });

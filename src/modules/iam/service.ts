@@ -35,5 +35,3 @@ export class IamService extends BaseService {
 		return result.length > 0;
 	}
 }
-
-export const iamService = new IamService();

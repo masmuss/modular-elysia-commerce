@@ -5,7 +5,7 @@ import { orderItemsTable } from "./schema";
 import { productModule } from "@/modules/products";
 import { OrderService } from "./service";
 import { CheckoutItem } from "./types";
-import "./listeners";
+import { registerOrderListeners } from "./listeners";
 
 const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
 	createInsertSchema(orderItemsTable).properties;
@@ -16,9 +16,12 @@ const checkoutBody = t.Object({
 	items: t.Array(checkoutItemSchema, { minItems: 1 }),
 });
 
+const orderService = new OrderService();
+registerOrderListeners(orderService);
+
 export const orderModule = new Elysia({ prefix: "/orders" })
 	.use(productModule)
-	.decorate("orderService", new OrderService())
+	.decorate("orderService", orderService)
 	.post(
 		"/checkout",
 		async ({ body, productService, orderService, request, status }) => {

@@ -1,6 +1,8 @@
 import Elysia from "elysia";
-import { iamService } from "@/modules/iam/service";
+import { IamService } from "@/modules/iam/service";
 import { auth } from "@/modules/auth";
+
+const iamService = new IamService();
 
 export const iamMacro = new Elysia({ name: "plugin.iam" }).macro({
 	requirePermission: (action: string) => ({

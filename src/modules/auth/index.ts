@@ -7,8 +7,12 @@ import {
 	sessionsTable,
 	verificationsTable,
 } from "@/modules/auth/schema";
+import { DEFAULT_ROLE, findRoleIdByName } from "@/modules/iam/seed";
+import { userRolesTable } from "@/modules/iam/schema";
 
 export const auth = betterAuth({
+	baseURL: process.env.BETTER_AUTH_URL,
+	secret: process.env.BETTER_AUTH_SECRET,
 	database: drizzleAdapter(db, {
 		provider: "mysql",
 		usePlural: true,
@@ -21,5 +25,25 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+	},
+	databaseHooks: {
+		user: {
+			create: {
+				after: async (user) => {
+					const roleId = await findRoleIdByName(DEFAULT_ROLE);
+					if (roleId === null) {
+						console.warn(
+							`[iam] role "${DEFAULT_ROLE}" belum ada, lewati assignment role untuk user ${user.id}`,
+						);
+						return;
+					}
+
+					await db
+						.insert(userRolesTable)
+						.values({ userId: user.id, roleId })
+						.onDuplicateKeyUpdate({ set: { roleId } });
+				},
+			},
+		},
 	},
 });
