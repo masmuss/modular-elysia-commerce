@@ -1,4 +1,11 @@
-import { mysqlTable, int, real, text, varchar } from "drizzle-orm/mysql-core";
+import {
+	mysqlTable,
+	int,
+	real,
+	text,
+	varchar,
+	timestamp,
+} from "drizzle-orm/mysql-core";
 
 export const productsTable = mysqlTable("products", {
 	id: int("id").primaryKey().autoincrement(),
@@ -6,5 +13,6 @@ export const productsTable = mysqlTable("products", {
 	description: text("description"),
 	price: real("price").notNull(),
 	stock: int("stock").notNull(),
-	createdByUserId: int("createdByUserId").notNull(),
+	createdByUserId: int("created_by_user_id").notNull(),
+	deletedAt: timestamp("deleted_at").$default(() => new Date()),
 });
