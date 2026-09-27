@@ -1,14 +1,11 @@
 import { db } from "../../core/db";
 import { orderItemsTable, ordersTable } from "./schema";
+import { CheckoutItem } from "./types";
 
 export class OrderService {
 	constructor(private readonly database = db) {}
 
-	async create(
-		userId: number,
-		items: { productId: number; quantity: number; price: number }[],
-		totalAmount: number,
-	) {
+	async create(userId: number, items: CheckoutItem[], totalAmount: number) {
 		return await this.database.transaction(async (tx) => {
 			const [order] = await tx
 				.insert(ordersTable)
@@ -19,14 +16,9 @@ export class OrderService {
 				})
 				.$returningId();
 
-			const orderItemsData = items.map((item) => ({
-				orderId: order.id,
-				productId: item.productId,
-				quantity: item.quantity,
-				priceAtTimeOfOrder: item.price,
-			}));
-
-			await tx.insert(orderItemsTable).values(orderItemsData);
+			await tx.insert(orderItemsTable).values(
+				items.map((item) => ({ ...item, orderId: order.id })),
+			);
 
 			return order;
 		});

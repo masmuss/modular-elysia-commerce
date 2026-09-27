@@ -2,6 +2,7 @@ import Elysia, { t } from "elysia";
 import { userModule } from "../users";
 import { productModule } from "../products";
 import { OrderService } from "./service";
+import { CheckoutItem } from "./types";
 
 export const orderModule = new Elysia({ prefix: "/orders" })
 	.use(userModule)
@@ -19,7 +20,7 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 			}
 
 			let totalAmount = 0;
-			const validatedItems: { productId: number; quantity: number; price: number }[] = [];
+			const validatedItems: CheckoutItem[] = [];
 
 			for (const item of body.items) {
 				const product = await productService.getById(item.productId);
@@ -41,11 +42,11 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 				validatedItems.push({
 					productId: product.id,
 					quantity: item.quantity,
-					price: product.price,
+					priceAtTimeOfOrder: product.price,
 				});
 			}
 
-			const successfullyDeductedItems: typeof validatedItems = [];
+			const successfullyDeductedItems: CheckoutItem[] = [];
 
 			try {
 				for (const item of validatedItems) {
