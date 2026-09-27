@@ -11,6 +11,7 @@
   "dependencies": {
     "dotenv": "^18.0.4",
     "drizzle-orm": "^1.0.0-rc.4",
+    "drizzle-typebox": "^0.3.3",
     "elysia": "latest",
     "mysql2": "^3.24.4"
   },
@@ -19,6 +20,9 @@
     "bun-types": "latest",
     "drizzle-kit": "^1.0.0-rc.4",
     "tsx": "^4.23.15"
+  },
+  "overrides": {
+    "@sinclair/typebox": "0.32.4"
   },
   "module": "src/index.js"
 }

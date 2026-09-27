@@ -17,7 +17,7 @@ export class UserService {
 		return user;
 	}
 
-	async findById(id: number): Promise<User> {
+	async findById(id: number): Promise<User | undefined> {
 		const [user] = await this.database
 			.select()
 			.from(usersTable)

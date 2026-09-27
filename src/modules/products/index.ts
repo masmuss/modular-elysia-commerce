@@ -10,7 +10,9 @@ export const productModule = new Elysia({ prefix: "/products" })
 	.post(
 		"/",
 		async ({ body, productService, userService, status }) => {
-			const isUserValid: User = await userService.findById(body.userId);
+			const isUserValid: User | undefined = await userService.findById(
+				body.userId,
+			);
 
 			if (!isUserValid) {
 				return status(400, { status: "error", message: "invalid user" });

@@ -1,7 +1,17 @@
 import Elysia, { t } from "elysia";
 import { UserService } from "./service";
 import { password } from "bun";
-import { User } from "./types";
+import { createInsertSchema } from "drizzle-typebox";
+import { usersTable } from "./schema";
+
+const insertUserSchema = createInsertSchema(usersTable, {
+	email: t.String({ format: "email" }),
+});
+
+const createUserBody = t.Composite([
+	t.Omit(insertUserSchema, ["id", "passwordHash"]),
+	t.Object({ password: t.String({ minLength: 8 }) }),
+]);
 
 export const userModule = new Elysia({ prefix: "/users" })
 	.decorate("userService", new UserService())
@@ -9,8 +19,9 @@ export const userModule = new Elysia({ prefix: "/users" })
 		"/",
 		async ({ body, userService, status }) => {
 			const hash = await password.hash(body.password);
-			const user: User = await userService.create({
-				...body,
+			const user = await userService.create({
+				email: body.email,
+				name: body.name,
 				passwordHash: hash,
 			});
 
@@ -24,17 +35,13 @@ export const userModule = new Elysia({ prefix: "/users" })
 			});
 		},
 		{
-			body: t.Object({
-				email: t.String({ format: "email" }),
-				name: t.String(),
-				password: t.String({ minLength: 8 }),
-			}),
+			body: createUserBody,
 		},
 	)
 	.get(
 		"/:id",
 		async ({ params, status, userService }) => {
-			const user: User = await userService.findById(params.id);
+			const user = await userService.findById(params.id);
 			if (!user)
 				return status(404, { status: "error", message: "user not found" });
 
