@@ -1,6 +1,8 @@
 import Elysia, { t } from "elysia";
 import { userModule } from "../users";
 import { ProductService } from "./service";
+import { User } from "../users/types";
+import { Product } from "./types";
 
 export const productModule = new Elysia({ prefix: "/products" })
 	.use(userModule)
@@ -8,13 +10,16 @@ export const productModule = new Elysia({ prefix: "/products" })
 	.post(
 		"/",
 		async ({ body, productService, userService, status }) => {
-			const isUserValid = await userService.findById(body.userId);
+			const isUserValid: User = await userService.findById(body.userId);
 
 			if (!isUserValid) {
 				return status(400, { status: "error", message: "invalid user" });
 			}
 
-			const product = await productService.create(body);
+			const product = await productService.create({
+				...body,
+				createdByUserId: body.userId,
+			});
 			return status(201, { status: "success", data: product });
 		},
 		{
@@ -30,7 +35,7 @@ export const productModule = new Elysia({ prefix: "/products" })
 	.get(
 		"/:id",
 		async ({ params, productService, status }) => {
-			const product = await productService.getById(params.id);
+			const product: Product = await productService.getById(params.id);
 			if (!product)
 				return status(404, { status: "error", message: "product not found" });
 			return status(200, { status: "success", data: product });
