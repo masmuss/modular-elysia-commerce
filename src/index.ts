@@ -1,10 +1,10 @@
 import { Elysia } from "elysia";
-import { userModule } from "@/modules/users";
-import { productModule } from "@/modules/products";
 import { orderModule } from "@/modules/orders";
+import { productModule } from "@/modules/products";
+import { userModule } from "@/modules/users";
 import { authRoutes } from "@/plugins/auth";
-import { iamMacro } from "@/plugins/iam";
 import { statusFromCode, toErrorResponse } from "@/plugins/error";
+import { iamMacro } from "@/plugins/iam";
 
 const app = new Elysia()
 	.onError(({ code, error, set }) => {

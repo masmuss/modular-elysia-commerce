@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { eventBus } from "@/core/event-bus";
 import { BaseService } from "@/core/service";
 import { orderItemsTable, ordersTable } from "./schema";
-import { CheckoutItem, Order } from "./types";
+import type { CheckoutItem, Order } from "./types";
 
 export class OrderService extends BaseService {
 	async createPendingOrder(

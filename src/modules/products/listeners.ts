@@ -1,5 +1,5 @@
 import { eventBus } from "@/core/event-bus";
-import { ProductService } from "./service";
+import type { ProductService } from "./service";
 
 export const registerProductListeners = (
 	productService: ProductService,

@@ -1,5 +1,5 @@
 import { int, mysqlTable, primaryKey, varchar } from "drizzle-orm/mysql-core";
-import { usersTable } from "../users/schema";
+import { usersTable } from "@/modules/users/schema";
 
 export const rolesTable = mysqlTable("iam_roles", {
 	id: int("id").primaryKey().autoincrement(),

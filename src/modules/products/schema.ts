@@ -1,10 +1,10 @@
 import {
-	mysqlTable,
-	int,
 	decimal,
+	int,
+	mysqlTable,
 	text,
-	varchar,
 	timestamp,
+	varchar,
 } from "drizzle-orm/mysql-core";
 
 export const productsTable = mysqlTable("products", {

@@ -1,9 +1,9 @@
 import { sql } from "drizzle-orm";
 import {
-	mysqlTable,
-	mysqlEnum,
-	int,
 	decimal,
+	int,
+	mysqlEnum,
+	mysqlTable,
 	timestamp,
 	varchar,
 } from "drizzle-orm/mysql-core";

@@ -1,7 +1,7 @@
 import { and, eq, gte, sql } from "drizzle-orm";
 import { BaseService } from "@/core/service";
 import { productsTable } from "./schema";
-import { CreateProduct, Product } from "./types";
+import type { CreateProduct, Product } from "./types";
 
 export class ProductService extends BaseService {
 	async create(data: CreateProduct): Promise<Product> {

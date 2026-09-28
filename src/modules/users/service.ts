@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
 import { BaseService } from "@/core/service";
 import { usersTable } from "./schema";
-import { User } from "./types";
+import type { User } from "./types";
 
 export class UserService extends BaseService {
 	async findById(id: string): Promise<User | undefined> {

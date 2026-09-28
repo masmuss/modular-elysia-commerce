@@ -1,5 +1,5 @@
 import { eventBus } from "@/core/event-bus";
-import { OrderService } from "./service";
+import type { OrderService } from "./service";
 
 export const registerOrderListeners = (orderService: OrderService): void => {
 	eventBus.on("STOCK_RESERVED", async ({ orderId }) => {

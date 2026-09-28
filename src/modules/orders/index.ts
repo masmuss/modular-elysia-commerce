@@ -1,11 +1,11 @@
-import Elysia, { t } from "elysia";
 import { createInsertSchema } from "drizzle-typebox";
-import { getSession } from "@/plugins/auth";
-import { orderItemsTable } from "./schema";
+import Elysia, { t } from "elysia";
 import { productModule } from "@/modules/products";
-import { OrderService } from "./service";
-import { CheckoutItem } from "./types";
+import { getSession } from "@/plugins/auth";
 import { registerOrderListeners } from "./listeners";
+import { orderItemsTable } from "./schema";
+import { OrderService } from "./service";
+import type { CheckoutItem } from "./types";
 
 const { id, orderId, priceAtTimeOfOrder, ...checkoutColumns } =
 	createInsertSchema(orderItemsTable).properties;

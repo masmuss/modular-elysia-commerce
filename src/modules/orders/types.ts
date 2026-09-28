@@ -1,4 +1,4 @@
-import { orderItemsTable, ordersTable } from "./schema";
+import type { orderItemsTable, ordersTable } from "./schema";
 
 export type Order = typeof ordersTable.$inferSelect;
 export type CreateOrder = typeof ordersTable.$inferInsert;

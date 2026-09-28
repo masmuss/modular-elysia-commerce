@@ -1,10 +1,10 @@
-import Elysia, { t } from "elysia";
 import { createInsertSchema } from "drizzle-typebox";
+import Elysia, { t } from "elysia";
 import { getSession } from "@/plugins/auth";
 import { iamMacro } from "@/plugins/iam";
-import { ProductService } from "./service";
-import { productsTable } from "./schema";
 import { registerProductListeners } from "./listeners";
+import { productsTable } from "./schema";
+import { ProductService } from "./service";
 
 const { id, createdByUserId, deletedAt, ...clientColumns } =
 	createInsertSchema(productsTable).properties;

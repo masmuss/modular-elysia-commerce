@@ -1,6 +1,6 @@
 import Elysia from "elysia";
-import { IamService } from "@/modules/iam/service";
 import { auth } from "@/modules/auth";
+import { IamService } from "@/modules/iam/service";
 
 const iamService = new IamService();
 
