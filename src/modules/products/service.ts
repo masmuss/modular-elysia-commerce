@@ -27,7 +27,9 @@ export class ProductService extends BaseService {
 		return product;
 	}
 
-	async reserveStock(items: { productId: number; quantity: number }[]): Promise<void> {
+	async reserveStock(
+		items: { productId: number; quantity: number }[],
+	): Promise<void> {
 		await this.database.transaction(async (tx) => {
 			for (const item of items) {
 				const [result] = await tx

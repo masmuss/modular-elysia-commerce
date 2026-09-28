@@ -8,6 +8,7 @@ export const poolConnection = mysql.createPool({
 	database: env.DB_DATABASE,
 });
 
-export const closeDatabase = (): Promise<void> => poolConnection.promise().end();
+export const closeDatabase = (): Promise<void> =>
+	poolConnection.promise().end();
 
 export const db = drizzle({ client: poolConnection });

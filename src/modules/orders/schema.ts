@@ -16,7 +16,11 @@ export const ordersTable = mysqlTable("orders", {
 	status: mysqlEnum("status", ["PENDING", "PAID", "FAILED"])
 		.notNull()
 		.default("PENDING"),
-	totalAmount: decimal("total_amount", { precision: 14, scale: 2, mode: "number" }).notNull(),
+	totalAmount: decimal("total_amount", {
+		precision: 14,
+		scale: 2,
+		mode: "number",
+	}).notNull(),
 	createdAt: timestamp("created_at").notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
