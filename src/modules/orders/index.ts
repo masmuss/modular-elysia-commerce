@@ -1,6 +1,6 @@
 import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
-import { productModule } from "@/modules/products";
+import { productService } from "@/modules/products";
 import { getSession } from "@/plugins/auth";
 import { registerOrderListeners } from "./listeners";
 import { orderItemsTable } from "./schema";
@@ -20,7 +20,7 @@ const orderService = new OrderService();
 registerOrderListeners(orderService);
 
 export const orderModule = new Elysia({ prefix: "/orders" })
-	.use(productModule)
+	.decorate("productService", productService)
 	.decorate("orderService", orderService)
 	.post(
 		"/checkout",

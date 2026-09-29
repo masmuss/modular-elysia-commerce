@@ -11,7 +11,7 @@ const { id, createdByUserId, deletedAt, ...clientColumns } =
 
 const createProductBody = t.Object(clientColumns);
 
-const productService = new ProductService();
+export const productService = new ProductService();
 registerProductListeners(productService);
 
 export const productModule = new Elysia({ prefix: "/products" })
