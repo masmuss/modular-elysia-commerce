@@ -76,6 +76,14 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 				202: checkoutResponse,
 				400: errorResponse,
 				401: errorResponse,
+				403: errorResponse,
+				404: errorResponse,
+			},
+			detail: {
+				summary: "Checkout cart into pending order",
+				description:
+					"Bulk-fetch products once, snapshot prices, create PENDING order, emit ORDER_CREATE_PENDING for async stock reservation.",
+				tags: ["Orders"],
 			},
 		},
 	);

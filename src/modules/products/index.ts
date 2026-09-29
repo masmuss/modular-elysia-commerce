@@ -9,6 +9,31 @@ const { id, createdByUserId, deletedAt, ...clientColumns } =
 
 const createProductBody = t.Object(clientColumns);
 
+const errorResponse = t.Object({
+	status: t.Literal("error"),
+	message: t.String(),
+});
+
+const productResponse = t.Object(
+	{
+		id: t.Number(),
+		name: t.String(),
+		price: t.Number(),
+		stock: t.Number(),
+	},
+	{ additionalProperties: true },
+);
+
+const createProductResponse = t.Object({
+	status: t.Literal("success"),
+	data: productResponse,
+});
+
+const getProductResponse = t.Object({
+	status: t.Literal("success"),
+	data: productResponse,
+});
+
 export const productService = new ProductService();
 
 export const productModule = new Elysia({ prefix: "/products" })
@@ -26,6 +51,18 @@ export const productModule = new Elysia({ prefix: "/products" })
 		{
 			body: createProductBody,
 			requirePermission: "product:create",
+			response: {
+				201: createProductResponse,
+				401: errorResponse,
+				403: errorResponse,
+				422: errorResponse,
+			},
+			detail: {
+				summary: "Create product",
+				description:
+					"Requires product:create permission. Sets createdByUserId from session.",
+				tags: ["Products"],
+			},
 		},
 	)
 	.get(
@@ -40,5 +77,14 @@ export const productModule = new Elysia({ prefix: "/products" })
 			params: t.Object({
 				id: t.Number(),
 			}),
+			response: {
+				200: getProductResponse,
+				404: errorResponse,
+			},
+			detail: {
+				summary: "Get product by id",
+				description: "Public catalog read. No auth required.",
+				tags: ["Products"],
+			},
 		},
 	);
