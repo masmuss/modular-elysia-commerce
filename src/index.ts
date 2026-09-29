@@ -1,10 +1,15 @@
 import { Elysia } from "elysia";
-import { orderModule } from "@/modules/orders";
-import { productModule } from "@/modules/products";
+import { orderModule, orderService } from "@/modules/orders";
+import { registerOrderListeners } from "@/modules/orders/listeners";
+import { productModule, productService } from "@/modules/products";
+import { registerProductListeners } from "@/modules/products/listeners";
 import { userModule } from "@/modules/users";
 import { authRoutes } from "@/plugins/auth";
 import { statusFromCode, toErrorResponse } from "@/plugins/error";
 import { iamMacro } from "@/plugins/iam";
+
+registerProductListeners(productService);
+registerOrderListeners(orderService);
 
 const app = new Elysia()
 	.onError(({ code, error, set }) => {

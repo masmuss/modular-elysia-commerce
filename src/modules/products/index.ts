@@ -1,7 +1,6 @@
 import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
 import { iamMacro } from "@/plugins/iam";
-import { registerProductListeners } from "./listeners";
 import { productsTable } from "./schema";
 import { ProductService } from "./service";
 
@@ -11,7 +10,6 @@ const { id, createdByUserId, deletedAt, ...clientColumns } =
 const createProductBody = t.Object(clientColumns);
 
 export const productService = new ProductService();
-registerProductListeners(productService);
 
 export const productModule = new Elysia({ prefix: "/products" })
 	.use(iamMacro)

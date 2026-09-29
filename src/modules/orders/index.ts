@@ -2,7 +2,6 @@ import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
 import { productService } from "@/modules/products";
 import { iamMacro } from "@/plugins/iam";
-import { registerOrderListeners } from "./listeners";
 import { orderItemsTable } from "./schema";
 import { OrderService } from "./service";
 import type { CheckoutItem } from "./types";
@@ -16,8 +15,7 @@ const checkoutBody = t.Object({
 	items: t.Array(checkoutItemSchema, { minItems: 1 }),
 });
 
-const orderService = new OrderService();
-registerOrderListeners(orderService);
+export const orderService = new OrderService();
 
 export const orderModule = new Elysia({ prefix: "/orders" })
 	.use(iamMacro)
