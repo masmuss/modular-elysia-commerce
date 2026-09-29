@@ -1,4 +1,4 @@
-import { and, eq, gte, sql } from "drizzle-orm";
+import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { BaseService } from "@/core/service";
 import { productsTable } from "./schema";
 import type { CreateProduct, Product } from "./types";
@@ -18,13 +18,21 @@ export class ProductService extends BaseService {
 		return product;
 	}
 
-	async getById(id: number): Promise<Product> {
+	async getById(id: number): Promise<Product | undefined> {
 		const [product] = await this.database
 			.select()
 			.from(productsTable)
 			.where(eq(productsTable.id, id));
 
 		return product;
+	}
+
+	async getByIds(ids: number[]): Promise<Product[]> {
+		if (ids.length === 0) return [];
+		return this.database
+			.select()
+			.from(productsTable)
+			.where(inArray(productsTable.id, [...new Set(ids)]));
 	}
 
 	async reserveStock(

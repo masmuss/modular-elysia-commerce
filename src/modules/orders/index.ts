@@ -15,6 +15,22 @@ const checkoutBody = t.Object({
 	items: t.Array(checkoutItemSchema, { minItems: 1 }),
 });
 
+const errorResponse = t.Object({
+	status: t.Literal("error"),
+	message: t.String(),
+});
+
+const checkoutResponse = t.Object({
+	status: t.Literal("processing"),
+	message: t.String(),
+	data: t.Object(
+		{
+			id: t.Number(),
+		},
+		{ additionalProperties: true },
+	),
+});
+
 export const orderService = new OrderService();
 
 export const orderModule = new Elysia({ prefix: "/orders" })
@@ -24,11 +40,15 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 	.post(
 		"/checkout",
 		async ({ body, productService, orderService, user, status }) => {
+			const productIds = body.items.map((item) => item.productId);
+			const products = await productService.getByIds(productIds);
+			const productById = new Map(products.map((p) => [p.id, p]));
+
 			let totalAmount = 0;
 			const itemsWithPrice: CheckoutItem[] = [];
 
 			for (const item of body.items) {
-				const product = await productService.getById(item.productId);
+				const product = productById.get(item.productId);
 
 				if (!product)
 					return status(400, {
@@ -60,5 +80,10 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 		{
 			body: checkoutBody,
 			isAuth: true,
+			response: {
+				202: checkoutResponse,
+				400: errorResponse,
+				401: errorResponse,
+			},
 		},
 	);
