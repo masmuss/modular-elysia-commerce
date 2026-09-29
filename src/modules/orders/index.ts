@@ -2,6 +2,7 @@ import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
 import { productService } from "@/modules/products";
 import { iamMacro } from "@/plugins/iam";
+import { buildCheckoutPayload } from "./checkout";
 import { orderItemsTable } from "./schema";
 import { OrderService } from "./service";
 import type { CheckoutItem } from "./types";
@@ -42,26 +43,17 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 		async ({ body, productService, orderService, user, status }) => {
 			const productIds = body.items.map((item) => item.productId);
 			const products = await productService.getByIds(productIds);
-			const productById = new Map(products.map((p) => [p.id, p]));
 
-			let totalAmount = 0;
-			const itemsWithPrice: CheckoutItem[] = [];
-
-			for (const item of body.items) {
-				const product = productById.get(item.productId);
-
-				if (!product)
-					return status(400, {
-						status: "error",
-						message: `product ${item.productId} not found`,
-					});
-
-				totalAmount += product.price * item.quantity;
-
-				itemsWithPrice.push({
-					productId: product.id,
-					quantity: item.quantity,
-					priceAtTimeOfOrder: product.price,
+			let itemsWithPrice: CheckoutItem[];
+			let totalAmount: number;
+			try {
+				const payload = buildCheckoutPayload(body.items, products);
+				itemsWithPrice = payload.itemsWithPrice;
+				totalAmount = payload.totalAmount;
+			} catch (error) {
+				return status(400, {
+					status: "error",
+					message: error instanceof Error ? error.message : "bad request",
 				});
 			}
 
