@@ -1,9 +1,10 @@
 import Elysia from "elysia";
 import { auth } from "@/modules/auth";
+import { authRateLimit } from "@/plugins/rate-limit";
 
-export const authRoutes = new Elysia({ name: "plugin.auth.routes" }).mount(
-	auth.handler,
-);
+export const authRoutes = new Elysia({ name: "plugin.auth.routes" })
+	.use(authRateLimit)
+	.mount(auth.handler);
 
 export const getSession = async (headers: Headers) =>
 	auth.api.getSession({ headers });
