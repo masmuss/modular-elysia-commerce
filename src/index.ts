@@ -1,5 +1,6 @@
 import { openapi } from "@elysia/openapi";
 import { Elysia } from "elysia";
+import { logger, requestLogger } from "@/core/logger";
 import { OpenAPI } from "@/modules/auth";
 import { orderModule, orderService } from "@/modules/orders";
 import { registerOrderListeners } from "@/modules/orders/listeners";
@@ -36,7 +37,7 @@ export const app = new Elysia()
 		}),
 	)
 	.onError(({ code, error, set }) => {
-		console.error(`[${code}]`, error);
+		logger.error({ code, err: error }, "request failed");
 		set.status = statusFromCode(code);
 		return toErrorResponse(code, error);
 	})
@@ -44,6 +45,7 @@ export const app = new Elysia()
 		detail: { summary: "Health check", tags: ["Health"], hide: true },
 	})
 	.use(authRoutes)
+	.use(requestLogger)
 	.use(iamMacro)
 	.use(userModule)
 	.use(productModule)
@@ -51,7 +53,7 @@ export const app = new Elysia()
 
 if (import.meta.main) {
 	app.listen(3000);
-	console.log(
-		`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
+	logger.info(
+		`Elysia is running at ${app.server?.hostname}:${app.server?.port}`,
 	);
 }

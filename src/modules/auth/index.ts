@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { openAPI } from "better-auth/plugins";
 import { db } from "@/core/db";
+import { logger } from "@/core/logger";
 import {
 	accountsTable,
 	sessionsTable,
@@ -34,8 +35,9 @@ export const auth = betterAuth({
 				after: async (user) => {
 					const roleId = await findRoleIdByName(DEFAULT_ROLE);
 					if (roleId === null) {
-						console.warn(
-							`[iam] role "${DEFAULT_ROLE}" belum ada, lewati assignment role untuk user ${user.id}`,
+						logger.warn(
+							{ role: DEFAULT_ROLE, userId: user.id },
+							"role missing, skipping role assignment",
 						);
 						return;
 					}

@@ -1,4 +1,5 @@
 import { eventBus } from "@/core/event-bus";
+import { logger, withOrderId } from "@/core/logger";
 import type { OrderService } from "./service";
 
 export const registerOrderListeners = (orderService: OrderService): void => {
@@ -6,24 +7,22 @@ export const registerOrderListeners = (orderService: OrderService): void => {
 		try {
 			await orderService.updateOrderStatus(orderId, "PAID");
 		} catch (error: unknown) {
-			console.error(
-				`failed to mark order ${orderId} as paid: ${
-					error instanceof Error ? error.message : String(error)
-				}`,
+			withOrderId(orderId).error(
+				{ err: error },
+				"failed to mark order as paid",
 			);
 		}
 	});
 
 	eventBus.on("STOCK_RESERVATION_FAILED", async ({ orderId, reason }) => {
-		console.error(`order ${orderId} failed: ${reason}`);
+		logger.warn({ orderId, reason }, "stock reservation failed");
 
 		try {
 			await orderService.updateOrderStatus(orderId, "FAILED");
 		} catch (error: unknown) {
-			console.error(
-				`failed to mark order ${orderId} as failed: ${
-					error instanceof Error ? error.message : String(error)
-				}`,
+			withOrderId(orderId).error(
+				{ err: error },
+				"failed to mark order as failed",
 			);
 		}
 	});
