@@ -1,6 +1,7 @@
 import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
 import { productService } from "@/modules/products";
+import { errorResponse } from "@/plugins/error";
 import { iamMacro } from "@/plugins/iam";
 import { buildCheckoutPayload } from "./checkout";
 import { orderItemsTable } from "./schema";
@@ -14,11 +15,6 @@ const checkoutItemSchema = t.Object(checkoutColumns);
 
 const checkoutBody = t.Object({
 	items: t.Array(checkoutItemSchema, { minItems: 1 }),
-});
-
-const errorResponse = t.Object({
-	status: t.Literal("error"),
-	message: t.String(),
 });
 
 const checkoutResponse = t.Object({

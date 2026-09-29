@@ -1,14 +1,10 @@
 import Elysia, { t } from "elysia";
 import { IamService } from "@/modules/iam/service";
+import { errorResponse } from "@/plugins/error";
 import { iamMacro } from "@/plugins/iam";
 import { UserService } from "./service";
 
 const iamService = new IamService();
-
-const errorResponse = t.Object({
-	status: t.Literal("error"),
-	message: t.String(),
-});
 
 const getUserResponse = t.Object({
 	status: t.Literal("success"),

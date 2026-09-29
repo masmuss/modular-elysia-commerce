@@ -1,5 +1,6 @@
 import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
+import { errorResponse } from "@/plugins/error";
 import { iamMacro } from "@/plugins/iam";
 import { productsTable } from "./schema";
 import { ProductService } from "./service";
@@ -8,11 +9,6 @@ const { id, createdByUserId, deletedAt, ...clientColumns } =
 	createInsertSchema(productsTable).properties;
 
 const createProductBody = t.Object(clientColumns);
-
-const errorResponse = t.Object({
-	status: t.Literal("error"),
-	message: t.String(),
-});
 
 const productResponse = t.Object(
 	{

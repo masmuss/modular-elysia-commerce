@@ -1,3 +1,5 @@
+import { t } from "elysia";
+
 const statusByCode: Record<string, number> = {
 	NOT_FOUND: 404,
 	VALIDATION: 422,
@@ -9,6 +11,13 @@ const statusByCode: Record<string, number> = {
 };
 
 export type ErrorCode = number | string;
+
+export const errorResponse = t.Object({
+	status: t.Literal("error"),
+	message: t.String(),
+});
+
+export type ErrorResponse = typeof errorResponse.static;
 
 export const statusFromCode = (code: ErrorCode): number =>
 	typeof code === "number" ? code : (statusByCode[code] ?? 500);
