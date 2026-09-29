@@ -1,7 +1,7 @@
 import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
 import { productService } from "@/modules/products";
-import { getSession } from "@/plugins/auth";
+import { iamMacro } from "@/plugins/iam";
 import { registerOrderListeners } from "./listeners";
 import { orderItemsTable } from "./schema";
 import { OrderService } from "./service";
@@ -20,16 +20,12 @@ const orderService = new OrderService();
 registerOrderListeners(orderService);
 
 export const orderModule = new Elysia({ prefix: "/orders" })
+	.use(iamMacro)
 	.decorate("productService", productService)
 	.decorate("orderService", orderService)
 	.post(
 		"/checkout",
-		async ({ body, productService, orderService, request, status }) => {
-			const session = await getSession(request.headers);
-			if (!session)
-				return status(401, { status: "error", message: "unauthorized" });
-
-			const user = session.user;
+		async ({ body, productService, orderService, user, status }) => {
 			let totalAmount = 0;
 			const itemsWithPrice: CheckoutItem[] = [];
 
@@ -65,5 +61,6 @@ export const orderModule = new Elysia({ prefix: "/orders" })
 		},
 		{
 			body: checkoutBody,
+			isAuth: true,
 		},
 	);

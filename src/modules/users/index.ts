@@ -1,23 +1,20 @@
 import Elysia, { t } from "elysia";
 import { IamService } from "@/modules/iam/service";
-import { getSession } from "@/plugins/auth";
+import { iamMacro } from "@/plugins/iam";
 import { UserService } from "./service";
 
 const iamService = new IamService();
 
 export const userModule = new Elysia({ prefix: "/users" })
+	.use(iamMacro)
 	.decorate("userService", new UserService())
 	.get(
 		"/:id",
-		async ({ params, request, status, userService }) => {
-			const session = await getSession(request.headers);
-			if (!session)
-				return status(401, { status: "error", message: "unauthorized" });
-
-			const isSelf = session.user.id === params.id;
+		async ({ params, user: sessionUser, status, userService }) => {
+			const isSelf = sessionUser.id === params.id;
 			if (
 				!isSelf &&
-				!(await iamService.hasPermission(session.user.id, "user:read"))
+				!(await iamService.hasPermission(sessionUser.id, "user:read"))
 			)
 				return status(403, { status: "error", message: "forbidden" });
 
@@ -38,5 +35,6 @@ export const userModule = new Elysia({ prefix: "/users" })
 			params: t.Object({
 				id: t.String({ minLength: 1, maxLength: 36 }),
 			}),
+			isAuth: true,
 		},
 	);

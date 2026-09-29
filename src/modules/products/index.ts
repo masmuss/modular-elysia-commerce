@@ -1,6 +1,5 @@
 import { createInsertSchema } from "drizzle-typebox";
 import Elysia, { t } from "elysia";
-import { getSession } from "@/plugins/auth";
 import { iamMacro } from "@/plugins/iam";
 import { registerProductListeners } from "./listeners";
 import { productsTable } from "./schema";
@@ -19,14 +18,10 @@ export const productModule = new Elysia({ prefix: "/products" })
 	.decorate("productService", productService)
 	.post(
 		"/",
-		async ({ body, productService, request, status }) => {
-			const session = await getSession(request.headers);
-			if (!session)
-				return status(401, { status: "error", message: "unauthorized" });
-
+		async ({ body, productService, user, status }) => {
 			const product = await productService.create({
 				...body,
-				createdByUserId: session.user.id,
+				createdByUserId: user.id,
 			});
 			return status(201, { status: "success", data: product });
 		},
