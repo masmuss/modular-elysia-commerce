@@ -1,5 +1,6 @@
 import { openapi } from "@elysia/openapi";
 import { Elysia } from "elysia";
+import { OpenAPI } from "@/modules/auth";
 import { orderModule, orderService } from "@/modules/orders";
 import { registerOrderListeners } from "@/modules/orders/listeners";
 import { productModule, productService } from "@/modules/products";
@@ -24,10 +25,13 @@ export const app = new Elysia()
 				},
 				tags: [
 					{ name: "Health", description: "Service status" },
+					{ name: "Auth", description: "Sign-up, sign-in, session" },
 					{ name: "Orders", description: "Checkout and order flow" },
 					{ name: "Products", description: "Product catalog and stock" },
 					{ name: "Users", description: "User profile" },
 				],
+				components: (await OpenAPI.components) as never,
+				paths: (await OpenAPI.getPaths()) as never,
 			},
 		}),
 	)
