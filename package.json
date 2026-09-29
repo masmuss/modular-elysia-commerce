@@ -9,6 +9,11 @@
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:seed": "bun run scripts/seed.ts",
+		"docker:dev": "docker compose --env-file .env.local -f docker/compose.yml up --build -d",
+		"docker:down": "docker compose --env-file .env.local -f docker/compose.yml down",
+		"docker:logs": "docker compose --env-file .env.local -f docker/compose.yml logs -f app",
+		"docker:seed": "docker compose --env-file .env.local -f docker/compose.yml exec app bun run db:seed",
+		"docker:migrate": "docker compose --env-file .env.local -f docker/compose.yml exec app bun run db:migrate",
 		"format": "bun x --bun @biomejs/biome format --write",
 		"lint": "bun x --bun @biomejs/biome lint --write",
 		"check": "bun x --bun @biomejs/biome check --fix"

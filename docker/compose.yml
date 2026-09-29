@@ -1,0 +1,55 @@
+name: ecommerce
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-ecommerce}
+      MYSQL_USER: ${DB_USER:-ecommerce}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-devsecret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-devrootsecret}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}",
+      ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_HOST: mysql
+      DB_PORT: "3306"
+      DB_DATABASE: ${DB_DATABASE:-ecommerce}
+      DB_USER: ${DB_USER:-ecommerce}
+      DB_PASSWORD: ${DB_PASSWORD:-devsecret}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env.local}
+      LOG_LEVEL: ${LOG_LEVEL:-debug}
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - ../src:/app/src
+      - ../drizzle:/app/drizzle
+      - ../scripts:/app/scripts
+    healthcheck:
+      test: [
+        "CMD-SHELL",
+        "bun -e \"fetch('http://localhost:3000/health').then((r) => { if (!r.ok) process.exit(1) })\"",
+      ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  mysql-data:
