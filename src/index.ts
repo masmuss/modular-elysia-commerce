@@ -1,5 +1,6 @@
 import { openapi } from "@elysia/openapi";
 import { Elysia } from "elysia";
+import { validateEnvOrThrow } from "@/core/env";
 import { logger, requestLogger } from "@/core/logger";
 import { OpenAPI } from "@/modules/auth";
 import { orderModule, orderService } from "@/modules/orders";
@@ -10,6 +11,8 @@ import { userModule } from "@/modules/users";
 import { authRoutes } from "@/plugins/auth";
 import { statusFromCode, toErrorResponse } from "@/plugins/error";
 import { iamMacro } from "@/plugins/iam";
+
+validateEnvOrThrow();
 
 registerProductListeners(productService);
 registerOrderListeners(orderService);
