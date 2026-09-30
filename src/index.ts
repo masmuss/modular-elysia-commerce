@@ -11,6 +11,7 @@ import { userModule } from "@/modules/users";
 import { authRoutes } from "@/plugins/auth";
 import { statusFromCode, toErrorResponse } from "@/plugins/error";
 import { iamMacro } from "@/plugins/iam";
+import { globalRateLimit } from "@/plugins/rate-limit";
 
 validateEnvOrThrow();
 
@@ -48,6 +49,7 @@ export const app = new Elysia()
 		detail: { summary: "Health check", tags: ["Health"], hide: true },
 	})
 	.use(authRoutes)
+	.use(globalRateLimit)
 	.use(requestLogger)
 	.use(iamMacro)
 	.use(userModule)
