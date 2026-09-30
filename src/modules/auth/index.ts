@@ -13,8 +13,10 @@ import { DEFAULT_ROLE, findRoleIdByName } from "@/modules/iam/seed";
 import { usersTable } from "@/modules/users/schema";
 
 export const auth = betterAuth({
-	baseURL: process.env.BETTER_AUTH_URL,
-	secret: process.env.BETTER_AUTH_SECRET,
+	baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+	secret:
+		process.env.BETTER_AUTH_SECRET ??
+		"test-secret-key-that-is-at-least-32-chars-long",
 	database: drizzleAdapter(db, {
 		provider: "mysql",
 		usePlural: true,
