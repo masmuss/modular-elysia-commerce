@@ -7,7 +7,8 @@ A modular monolith e-commerce backend API built with **Bun** and **Elysia.js**. 
 ## 🚀 Key Features
 
 - **Modular Monolith & Event-Driven**: Clean domain separation. Cross-module orchestration (e.g., checkout and stock reservation) handled asynchronously via an in-memory `EventBus`.
-- **Authentication & IAM (RBAC)**: Powered by [Better Auth](https://www.better-auth.com/) with fine-grained permission checks via an Elysia IAM macro (`iam: { permission: "..." }`).
+- **Authentication & IAM (RBAC)**: Powered by [Better Auth](https://www.better-auth.com/) with support for Email & Password and Email OTP, plus fine-grained permission checks via an Elysia IAM macro (`iam: { permission: "..." }`).
+- **Transactional Emails**: Styled responsive email templates built with [React Email](https://react.email/) and delivered via [Resend](https://resend.com/).
 - **Database & Migrations**: [Drizzle ORM](https://orm.drizzle.team/) with MySQL 8.4 (schema generation, migrations, and database seeding).
 - **Rate Limiting**: Global rate limiting (100 req/min) and auth rate limiting (10 req/min) via `elysia-rate-limit`.
 - **Validation & OpenAPI Documentation**: TypeBox schema validation with auto-generated Swagger/OpenAPI interactive docs at `/docs`.
@@ -24,9 +25,11 @@ A modular monolith e-commerce backend API built with **Bun** and **Elysia.js**. 
 ├── scripts/                # Database seed and utility scripts
 ├── src/
 │   ├── core/               # Shared core (Database, EventBus, Logger, Env Guard)
+│   ├── emails/             # React Email templates (OTP, Magic Link)
 │   ├── modules/            # Domain modules
-│   │   ├── auth/           # Better Auth routes & OpenAPI specs
+│   │   ├── auth/           # Better Auth routes, OTP config & OpenAPI specs
 │   │   ├── iam/            # Role & permission service + seed definitions
+│   │   ├── mailer/         # Email delivery client (Resend)
 │   │   ├── orders/         # Checkout flow, order lifecycle & listeners
 │   │   ├── products/       # Product catalog, stock reservation & listeners
 │   │   └── users/          # User profile management
@@ -74,6 +77,8 @@ DB_ROOT_PASSWORD=devrootsecret
 
 BETTER_AUTH_URL=http://localhost:3000
 BETTER_AUTH_SECRET=replace-with-a-random-32-character-secret
+
+RESEND_API_KEY=re_your_api_key_here
 ```
 
 ### 3. Start Database (Docker)
