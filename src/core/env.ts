@@ -1,9 +1,12 @@
 export const REQUIRED_ENV_KEYS = [
 	"DB_HOST",
+	"DB_PORT",
 	"DB_DATABASE",
 	"DB_USER",
+	"DB_PASSWORD",
 	"BETTER_AUTH_URL",
 	"BETTER_AUTH_SECRET",
+	"RESEND_API_KEY",
 ] as const;
 
 export type EnvRecord = Record<string, string | undefined>;

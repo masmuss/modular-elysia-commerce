@@ -7,7 +7,13 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["./src/**", "./scripts/**", "package.json", "tsconfig.json"]
+		"includes": [
+			"./src/**",
+			"./scripts/**",
+			"package.json",
+			"tsconfig.json",
+			"tailwind.config.ts"
+		]
 	},
 	"formatter": {
 		"enabled": true,

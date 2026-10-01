@@ -1,8 +1,10 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { openAPI } from "better-auth/plugins";
+import { emailOTP, openAPI } from "better-auth/plugins";
+import { render } from "react-email";
 import { db } from "@/core/db";
 import { logger } from "@/core/logger";
+import OTPEmail from "@/emails/otp";
 import {
 	accountsTable,
 	sessionsTable,
@@ -10,6 +12,7 @@ import {
 } from "@/modules/auth/schema";
 import { userRolesTable } from "@/modules/iam/schema";
 import { DEFAULT_ROLE, findRoleIdByName } from "@/modules/iam/seed";
+import { sendEmail } from "@/modules/mailer";
 import { usersTable } from "@/modules/users/schema";
 
 export const auth = betterAuth({
@@ -30,7 +33,40 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
-	plugins: [openAPI()],
+	plugins: [
+		emailOTP({
+			async sendVerificationOTP({ email, otp, type }) {
+				const subject =
+					type === "sign-in"
+						? "Your sign in OTP code"
+						: type === "email-verification"
+							? "Your email verification code"
+							: "Your password reset code";
+
+				const html = await render(OTPEmail({ otp }));
+				const { error } = await sendEmail({
+					from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
+					to: email,
+					subject,
+					html,
+				});
+
+				if (error) {
+					logger.error(
+						{ error, email, type },
+						"failed to send verification OTP email",
+					);
+					throw new Error("failed to send OTP email");
+				}
+
+				logger.info(
+					{ email, type },
+					"verification OTP email sent successfully",
+				);
+			},
+		}),
+		openAPI(),
+	],
 	databaseHooks: {
 		user: {
 			create: {
@@ -61,6 +97,10 @@ export const ALLOWED_AUTH_PATHS = [
 	"/sign-up/email",
 	"/sign-out",
 	"/get-session",
+	"/email-otp/send-verification-otp",
+	"/sign-in/email-otp",
+	"/email-otp/verify-email",
+	"/email-otp/reset-password",
 ];
 
 type AuthOperation = {
@@ -90,6 +130,24 @@ const AUTH_DOC_META: Record<string, { summary: string; description: string }> =
 		"/get-session": {
 			summary: "Get current session",
 			description: "Return active session and user bound to session cookie.",
+		},
+		"/email-otp/send-verification-otp": {
+			summary: "Send verification OTP",
+			description:
+				"Send a one-time password to email for sign-in, verification, or password reset.",
+		},
+		"/sign-in/email-otp": {
+			summary: "Sign in with email OTP",
+			description:
+				"Authenticate using email and one-time password. Returns session cookie.",
+		},
+		"/email-otp/verify-email": {
+			summary: "Verify email with OTP",
+			description: "Verify email address using the received OTP code.",
+		},
+		"/email-otp/reset-password": {
+			summary: "Reset password with OTP",
+			description: "Reset account password using verified OTP code.",
 		},
 	};
 

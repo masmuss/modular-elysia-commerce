@@ -14,6 +14,7 @@
 		"docker:logs": "docker compose --env-file .env.local -f docker/compose.yml logs -f app",
 		"docker:seed": "docker compose --env-file .env.local -f docker/compose.yml exec app bun run db:seed",
 		"docker:migrate": "docker compose --env-file .env.local -f docker/compose.yml exec app bun run db:migrate",
+		"email:dev": "email dev --dir ./src/emails --port 3001",
 		"format": "bun x --bun @biomejs/biome format --write",
 		"lint": "bun x --bun @biomejs/biome lint --write",
 		"check": "bun x --bun @biomejs/biome check --fix",
@@ -28,11 +29,18 @@
 		"elysia": "latest",
 		"elysia-rate-limit": "4.6.3",
 		"mysql2": "^3.24.4",
-		"pino": "^10.3.1"
+		"pino": "^10.3.1",
+		"react": "19.3.0",
+		"react-dom": "19.3.0",
+		"react-email": "6.11.0",
+		"resend": "^6.31.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.14",
+		"@react-email/ui": "6.11.0",
 		"@types/bun": "^1.4.2",
+		"@types/react": "^19.3.0",
+		"@types/react-dom": "^19.3.0",
 		"bun-types": "latest",
 		"drizzle-kit": "^1.0.0-rc.4",
 		"lefthook": "^2.1.15",
