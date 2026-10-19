@@ -4,7 +4,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, openAPI } from "better-auth/plugins";
 import { render } from "react-email";
 import { db } from "@/core/db";
-import { getRequiredEnv } from "@/core/env";
+import { getEnvList, getRequiredEnv } from "@/core/env";
 import { logger } from "@/core/logger";
 import { redis } from "@/core/redis";
 import OTPEmail from "@/emails/otp";
@@ -21,11 +21,21 @@ import { usersTable } from "@/modules/users/schema";
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
 	secret: process.env.BETTER_AUTH_SECRET,
+	trustedOrigins: getEnvList("BETTER_AUTH_TRUSTED_ORIGINS"),
 	secondaryStorage: redis
 		? redisStorage({ client: redis, keyPrefix: "ecommerce:auth:" })
 		: undefined,
 	session: {
+		expiresIn: 60 * 60 * 24 * 7,
+		updateAge: 60 * 60 * 24,
+		freshAge: 60 * 60,
 		storeSessionInDatabase: true,
+	},
+	advanced: {
+		ipAddress: {
+			ipAddressHeaders: ["x-forwarded-for", "x-real-ip"],
+			disableIpTracking: false,
+		},
 	},
 	rateLimit: {
 		enabled: true,

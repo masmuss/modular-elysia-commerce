@@ -8,6 +8,13 @@ describe("auth OTP integration", () => {
 		expect(auth.options.emailVerification?.sendOnSignIn).toBe(true);
 	});
 
+	it("should use secure session defaults", () => {
+		expect(auth.options.session?.expiresIn).toBe(60 * 60 * 24 * 7);
+		expect(auth.options.session?.updateAge).toBe(60 * 60 * 24);
+		expect(auth.options.session?.freshAge).toBe(60 * 60);
+		expect(auth.options.session?.storeSessionInDatabase).toBe(true);
+	});
+
 	it("should include OTP endpoints in ALLOWED_AUTH_PATHS", () => {
 		expect(ALLOWED_AUTH_PATHS).toContain("/email-otp/send-verification-otp");
 		expect(ALLOWED_AUTH_PATHS).toContain("/sign-in/email-otp");

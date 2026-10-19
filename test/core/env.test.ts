@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import {
 	REQUIRED_ENV_KEYS,
 	findMissingEnvKeys,
+	getEnvList,
 	getRequiredEnv,
 	validateEnvOrThrow,
 } from "@/core/env";
@@ -41,5 +42,14 @@ describe("env guard", () => {
 		expect(() => getRequiredEnv("RESEND_EMAIL_FROM", {})).toThrow(
 			"missing required env: RESEND_EMAIL_FROM",
 		);
+	});
+
+	it("should parse comma-separated environment values", () => {
+		expect(
+			getEnvList("BETTER_AUTH_TRUSTED_ORIGINS", {
+				BETTER_AUTH_TRUSTED_ORIGINS:
+					" https://app.example.com, https://admin.example.com, ",
+			}),
+		).toEqual(["https://app.example.com", "https://admin.example.com"]);
 	});
 });

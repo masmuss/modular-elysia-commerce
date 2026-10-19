@@ -22,6 +22,15 @@ export const getRequiredEnv = (
 	return value;
 };
 
+export const getEnvList = (
+	key: string,
+	env: EnvRecord = process.env,
+): string[] =>
+	(env[key] ?? "")
+		.split(",")
+		.map((value) => value.trim())
+		.filter(Boolean);
+
 export const findMissingEnvKeys = (
 	env: EnvRecord = process.env,
 	required: readonly string[] = REQUIRED_ENV_KEYS,

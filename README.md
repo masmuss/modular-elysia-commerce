@@ -78,6 +78,7 @@ DB_ROOT_PASSWORD=devrootsecret
 
 BETTER_AUTH_URL=http://localhost:3000
 BETTER_AUTH_SECRET=replace-with-a-random-32-character-secret
+BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000
 REDIS_URL=redis://localhost:6379
 
 RESEND_API_KEY=re_your_api_key_here
