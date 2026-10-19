@@ -1,4 +1,10 @@
-import { mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import {
+	json,
+	mysqlTable,
+	text,
+	timestamp,
+	varchar,
+} from "drizzle-orm/mysql-core";
 import { usersTable } from "@/modules/users/schema";
 
 export const sessionsTable = mysqlTable("sessions", {
@@ -39,4 +45,14 @@ export const verificationsTable = mysqlTable("verifications", {
 	expiresAt: timestamp("expires_at").notNull(),
 	createdAt: timestamp("created_at").notNull(),
 	updatedAt: timestamp("updated_at").notNull(),
+});
+
+export const authAuditLogsTable = mysqlTable("auth_audit_logs", {
+	id: varchar("id", { length: 36 }).primaryKey(),
+	event: varchar("event", { length: 100 }).notNull(),
+	userId: varchar("user_id", { length: 36 }),
+	ipAddress: text("ip_address"),
+	userAgent: text("user_agent"),
+	metadata: json("metadata"),
+	createdAt: timestamp("created_at").defaultNow().notNull(),
 });

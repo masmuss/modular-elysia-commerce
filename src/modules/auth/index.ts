@@ -8,6 +8,7 @@ import { getEnvList, getRequiredEnv } from "@/core/env";
 import { logger } from "@/core/logger";
 import { redis } from "@/core/redis";
 import OTPEmail from "@/emails/otp";
+import { AUTH_AUDIT_EVENTS, recordAuthAuditEvent } from "@/modules/auth/audit";
 import {
 	accountsTable,
 	sessionsTable,
@@ -73,10 +74,24 @@ export const auth = betterAuth({
 		enabled: true,
 		requireEmailVerification: true,
 		revokeSessionsOnPasswordReset: true,
+		onPasswordReset: async ({ user }, request) => {
+			await recordAuthAuditEvent({
+				event: AUTH_AUDIT_EVENTS.PASSWORD_RESET,
+				userId: user.id,
+				context: { request },
+			});
+		},
 	},
 	emailVerification: {
 		sendOnSignUp: true,
 		sendOnSignIn: true,
+		afterEmailVerification: async (user, request) => {
+			await recordAuthAuditEvent({
+				event: AUTH_AUDIT_EVENTS.EMAIL_VERIFIED,
+				userId: user.id,
+				context: { request },
+			});
+		},
 	},
 	plugins: [
 		emailOTP({
@@ -115,6 +130,26 @@ export const auth = betterAuth({
 		openAPI(),
 	],
 	databaseHooks: {
+		session: {
+			create: {
+				after: async (session, context) => {
+					await recordAuthAuditEvent({
+						event: AUTH_AUDIT_EVENTS.SESSION_CREATED,
+						userId: session.userId,
+						context,
+					});
+				},
+			},
+			delete: {
+				after: async (session, context) => {
+					await recordAuthAuditEvent({
+						event: AUTH_AUDIT_EVENTS.SESSION_REVOKED,
+						userId: session.userId,
+						context,
+					});
+				},
+			},
+		},
 		user: {
 			create: {
 				after: async (user) => {
