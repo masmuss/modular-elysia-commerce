@@ -1,3 +1,4 @@
+import { redisStorage } from "@better-auth/redis-storage";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, openAPI } from "better-auth/plugins";
@@ -5,6 +6,7 @@ import { render } from "react-email";
 import { db } from "@/core/db";
 import { getRequiredEnv } from "@/core/env";
 import { logger } from "@/core/logger";
+import { redis } from "@/core/redis";
 import OTPEmail from "@/emails/otp";
 import {
 	accountsTable,
@@ -19,6 +21,26 @@ import { usersTable } from "@/modules/users/schema";
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
 	secret: process.env.BETTER_AUTH_SECRET,
+	secondaryStorage: redis
+		? redisStorage({ client: redis, keyPrefix: "ecommerce:auth:" })
+		: undefined,
+	session: {
+		storeSessionInDatabase: true,
+	},
+	rateLimit: {
+		enabled: true,
+		storage: redis ? "secondary-storage" : "memory",
+		customRules: {
+			"/api/auth/email-otp/send-verification-otp": {
+				window: 60,
+				max: 3,
+			},
+			"/api/auth/sign-in/email-otp": {
+				window: 60,
+				max: 5,
+			},
+		},
+	},
 	database: drizzleAdapter(db, {
 		provider: "mysql",
 		usePlural: true,
@@ -34,6 +56,8 @@ export const auth = betterAuth({
 	},
 	plugins: [
 		emailOTP({
+			expiresIn: 600,
+			allowedAttempts: 3,
 			async sendVerificationOTP({ email, otp, type }) {
 				const subject =
 					type === "sign-in"

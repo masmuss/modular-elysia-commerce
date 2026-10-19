@@ -11,6 +11,7 @@ A modular monolith e-commerce backend API built with **Bun** and **Elysia.js**. 
 - **Transactional Emails**: Styled responsive email templates built with [React Email](https://react.email/) and delivered via [Resend](https://resend.com/).
 - **Database & Migrations**: [Drizzle ORM](https://orm.drizzle.team/) with MySQL 8.4 (schema generation, migrations, and database seeding).
 - **Rate Limiting**: Global rate limiting (100 req/min) and auth rate limiting (10 req/min) via `elysia-rate-limit`.
+- **Session Storage**: Redis secondary storage for fast session and auth rate-limit access, with MySQL session persistence.
 - **Validation & OpenAPI Documentation**: TypeBox schema validation with auto-generated Swagger/OpenAPI interactive docs at `/docs`.
 - **Structured Logging**: Production-grade JSON logging using Pino with HTTP request logging middleware.
 - **Containerized Development**: Ready-to-use Docker Compose setup for development (App + MySQL).
@@ -77,8 +78,10 @@ DB_ROOT_PASSWORD=devrootsecret
 
 BETTER_AUTH_URL=http://localhost:3000
 BETTER_AUTH_SECRET=replace-with-a-random-32-character-secret
+REDIS_URL=redis://localhost:6379
 
 RESEND_API_KEY=re_your_api_key_here
+RESEND_EMAIL_FROM=no-reply@your-verified-domain.com
 ```
 
 ### 3. Start Database (Docker)
