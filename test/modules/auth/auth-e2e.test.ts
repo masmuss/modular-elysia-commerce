@@ -1,6 +1,7 @@
 import { afterAll, describe, expect, it } from "bun:test";
 import { eq, inArray } from "drizzle-orm";
 import { db } from "@/core/db";
+import { redis } from "@/core/redis";
 import { createAuth } from "@/modules/auth";
 import {
 	accountsTable,
@@ -179,6 +180,31 @@ describeAuthE2E("auth end-to-end", () => {
 		expect(sendOtpResponse.status).toBe(200);
 		expect(passwordResetOtp).toMatch(/^\d+$/);
 
+		const verificationKey = `ecommerce:auth:verification:forget-password-otp-${email}`;
+		const storedVerification = await redis?.get(verificationKey);
+		if (!storedVerification) throw new Error("Expected OTP in Redis");
+		const expiredVerification = JSON.parse(storedVerification) as {
+			expiresAt: string;
+		};
+		expiredVerification.expiresAt = new Date(0).toISOString();
+		await redis?.set(verificationKey, JSON.stringify(expiredVerification));
+
+		const expiredResetResponse = await request("/email-otp/reset-password", {
+			email,
+			otp: passwordResetOtp,
+			password: resetPassword,
+		});
+
+		expect(expiredResetResponse.status).toBeGreaterThanOrEqual(400);
+
+		const replacementOtpResponse = await request(
+			"/email-otp/request-password-reset",
+			{ email },
+		);
+
+		expect(replacementOtpResponse.status).toBe(200);
+		expect(passwordResetOtp).toMatch(/^\d+$/);
+
 		const invalidResetResponse = await request("/email-otp/reset-password", {
 			email,
 			otp: "000000",
@@ -299,5 +325,46 @@ describeAuthE2E("auth end-to-end", () => {
 		expect(verificationResponses[verificationResponses.length - 1]?.status).toBe(
 			429,
 		);
+	});
+
+	it("should audit OTP delivery failures without storing the OTP", async () => {
+		const failureEmail = `auth-delivery-failure-${Date.now()}@example.com`;
+		const previousFailureEvents = await db
+			.select({ event: authAuditLogsTable.event })
+			.from(authAuditLogsTable)
+			.where(eq(authAuditLogsTable.event, "auth.otp.delivery_failed"));
+		const failingAuth = createAuth(async () => {
+			throw new Error("simulated email provider failure");
+		});
+
+		const response = await failingAuth.handler(
+			new Request(
+				"http://localhost:3000/api/auth/email-otp/send-verification-otp",
+				{
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						email: failureEmail,
+						type: "sign-in",
+					}),
+				},
+			),
+		);
+
+		expect(response.status).toBe(200);
+		await new Promise((resolve) => setTimeout(resolve, 50));
+
+		const auditEvents = await db
+			.select({
+				event: authAuditLogsTable.event,
+				metadata: authAuditLogsTable.metadata,
+			})
+			.from(authAuditLogsTable)
+			.where(eq(authAuditLogsTable.event, "auth.otp.delivery_failed"));
+		const newFailureEvents = auditEvents.slice(previousFailureEvents.length);
+		const latestFailure = newFailureEvents[newFailureEvents.length - 1];
+
+		expect(latestFailure?.metadata).toEqual({ type: "sign-in" });
+		expect(JSON.stringify(latestFailure)).not.toContain(failureEmail);
 	});
 });
