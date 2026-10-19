@@ -5,6 +5,10 @@ describe("auth OTP integration", () => {
 	it("should include OTP endpoints in ALLOWED_AUTH_PATHS", () => {
 		expect(ALLOWED_AUTH_PATHS).toContain("/email-otp/send-verification-otp");
 		expect(ALLOWED_AUTH_PATHS).toContain("/sign-in/email-otp");
+		expect(ALLOWED_AUTH_PATHS).toContain(
+			"/email-otp/request-password-reset",
+		);
+		expect(ALLOWED_AUTH_PATHS).toContain("/email-otp/reset-password");
 	});
 
 	it("should expose OpenAPI documentation with tags and summaries for OTP endpoints", async () => {
@@ -12,6 +16,8 @@ describe("auth OTP integration", () => {
 
 		const sendOtpPath = "/api/auth/email-otp/send-verification-otp";
 		const signInOtpPath = "/api/auth/sign-in/email-otp";
+		const requestResetPath = "/api/auth/email-otp/request-password-reset";
+		const resetPasswordPath = "/api/auth/email-otp/reset-password";
 
 		expect(paths[sendOtpPath]).toBeDefined();
 		expect(paths[sendOtpPath]?.post?.tags).toContain("Auth");
@@ -20,6 +26,15 @@ describe("auth OTP integration", () => {
 		expect(paths[signInOtpPath]).toBeDefined();
 		expect(paths[signInOtpPath]?.post?.tags).toContain("Auth");
 		expect(paths[signInOtpPath]?.post?.summary).toBe("Sign in with email OTP");
+
+		expect(paths[requestResetPath]?.post?.tags).toContain("Auth");
+		expect(paths[requestResetPath]?.post?.summary).toBe(
+			"Request password reset OTP",
+		);
+		expect(paths[resetPasswordPath]?.post?.tags).toContain("Auth");
+		expect(paths[resetPasswordPath]?.post?.summary).toBe(
+			"Reset password with OTP",
+		);
 	});
 
 	it("should validate input on send verification OTP endpoint", async () => {

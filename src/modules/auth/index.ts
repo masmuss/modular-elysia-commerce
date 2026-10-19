@@ -39,6 +39,14 @@ export const auth = betterAuth({
 				window: 60,
 				max: 5,
 			},
+			"/api/auth/email-otp/request-password-reset": {
+				window: 60,
+				max: 3,
+			},
+			"/api/auth/email-otp/reset-password": {
+				window: 60,
+				max: 5,
+			},
 		},
 	},
 	database: drizzleAdapter(db, {
@@ -53,6 +61,7 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+		revokeSessionsOnPasswordReset: true,
 	},
 	plugins: [
 		emailOTP({
@@ -123,6 +132,7 @@ export const ALLOWED_AUTH_PATHS = [
 	"/email-otp/send-verification-otp",
 	"/sign-in/email-otp",
 	"/email-otp/verify-email",
+	"/email-otp/request-password-reset",
 	"/email-otp/reset-password",
 ];
 
@@ -167,6 +177,11 @@ const AUTH_DOC_META: Record<string, { summary: string; description: string }> =
 		"/email-otp/verify-email": {
 			summary: "Verify email with OTP",
 			description: "Verify email address using the received OTP code.",
+		},
+		"/email-otp/request-password-reset": {
+			summary: "Request password reset OTP",
+			description:
+				"Send a password reset one-time password to the account email.",
 		},
 		"/email-otp/reset-password": {
 			summary: "Reset password with OTP",
