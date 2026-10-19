@@ -2,6 +2,12 @@ import { describe, expect, it } from "bun:test";
 import { ALLOWED_AUTH_PATHS, OpenAPI, auth } from "@/modules/auth";
 
 describe("auth OTP integration", () => {
+	it("should require email verification before password sign-in", () => {
+		expect(auth.options.emailAndPassword?.requireEmailVerification).toBe(true);
+		expect(auth.options.emailVerification?.sendOnSignUp).toBe(true);
+		expect(auth.options.emailVerification?.sendOnSignIn).toBe(true);
+	});
+
 	it("should include OTP endpoints in ALLOWED_AUTH_PATHS", () => {
 		expect(ALLOWED_AUTH_PATHS).toContain("/email-otp/send-verification-otp");
 		expect(ALLOWED_AUTH_PATHS).toContain("/sign-in/email-otp");

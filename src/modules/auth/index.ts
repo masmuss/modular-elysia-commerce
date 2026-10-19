@@ -61,7 +61,12 @@ export const auth = betterAuth({
 	}),
 	emailAndPassword: {
 		enabled: true,
+		requireEmailVerification: true,
 		revokeSessionsOnPasswordReset: true,
+	},
+	emailVerification: {
+		sendOnSignUp: true,
+		sendOnSignIn: true,
 	},
 	plugins: [
 		emailOTP({
