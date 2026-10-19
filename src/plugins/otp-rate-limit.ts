@@ -5,13 +5,13 @@ import { redis } from "@/core/redis";
 
 const OTP_PATHS = {
 	request: new Set([
-		"/api/auth/email-otp/send-verification-otp",
-		"/api/auth/email-otp/request-password-reset",
+		"/auth/email-otp/send-verification-otp",
+		"/auth/email-otp/request-password-reset",
 	]),
 	verify: new Set([
-		"/api/auth/sign-in/email-otp",
-		"/api/auth/email-otp/verify-email",
-		"/api/auth/email-otp/reset-password",
+		"/auth/sign-in/email-otp",
+		"/auth/email-otp/verify-email",
+		"/auth/email-otp/reset-password",
 	]),
 } as const;
 

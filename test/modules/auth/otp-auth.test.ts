@@ -35,10 +35,10 @@ describe("auth OTP integration", () => {
 	it("should expose OpenAPI documentation with tags and summaries for OTP endpoints", async () => {
 		const paths = await OpenAPI.getPaths();
 
-		const sendOtpPath = "/api/auth/email-otp/send-verification-otp";
-		const signInOtpPath = "/api/auth/sign-in/email-otp";
-		const requestResetPath = "/api/auth/email-otp/request-password-reset";
-		const resetPasswordPath = "/api/auth/email-otp/reset-password";
+		const sendOtpPath = "/auth/email-otp/send-verification-otp";
+		const signInOtpPath = "/auth/sign-in/email-otp";
+		const requestResetPath = "/auth/email-otp/request-password-reset";
+		const resetPasswordPath = "/auth/email-otp/reset-password";
 
 		expect(paths[sendOtpPath]).toBeDefined();
 		expect(paths[sendOtpPath]?.post?.tags).toContain("Auth");
@@ -60,7 +60,7 @@ describe("auth OTP integration", () => {
 
 	it("should validate input on send verification OTP endpoint", async () => {
 		const req = new Request(
-			"http://localhost:3000/api/auth/email-otp/send-verification-otp",
+			"http://localhost:3000/auth/email-otp/send-verification-otp",
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

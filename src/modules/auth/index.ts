@@ -40,19 +40,19 @@ export const auth = betterAuth({
 		enabled: true,
 		storage: redis ? "secondary-storage" : "memory",
 		customRules: {
-			"/api/auth/email-otp/send-verification-otp": {
+			"/auth/email-otp/send-verification-otp": {
 				window: 60,
 				max: 3,
 			},
-			"/api/auth/sign-in/email-otp": {
+			"/auth/sign-in/email-otp": {
 				window: 60,
 				max: 5,
 			},
-			"/api/auth/email-otp/request-password-reset": {
+			"/auth/email-otp/request-password-reset": {
 				window: 60,
 				max: 3,
 			},
-			"/api/auth/email-otp/reset-password": {
+			"/auth/email-otp/reset-password": {
 				window: 60,
 				max: 5,
 			},
@@ -159,7 +159,7 @@ export const auth = betterAuth({
 	},
 });
 
-export const AUTH_DOC_PREFIX = "/api/auth";
+export const AUTH_DOC_PREFIX = "/auth";
 
 export const ALLOWED_AUTH_PATHS = [
 	"/sign-in/email",
