@@ -1,11 +1,19 @@
 import { describe, expect, it } from "bun:test";
 import { ALLOWED_AUTH_PATHS, OpenAPI, auth } from "@/modules/auth";
+import { AUTH_AUDIT_EVENTS } from "@/modules/auth/audit";
 
 describe("auth OTP integration", () => {
 	it("should require email verification before password sign-in", () => {
 		expect(auth.options.emailAndPassword?.requireEmailVerification).toBe(true);
 		expect(auth.options.emailVerification?.sendOnSignUp).toBe(true);
 		expect(auth.options.emailVerification?.sendOnSignIn).toBe(true);
+	});
+
+	it("should define audit events for OTP lifecycle", () => {
+		expect(AUTH_AUDIT_EVENTS.OTP_REQUESTED).toBe("auth.otp.requested");
+		expect(AUTH_AUDIT_EVENTS.OTP_DELIVERY_FAILED).toBe(
+			"auth.otp.delivery_failed",
+		);
 	});
 
 	it("should use secure session defaults", () => {

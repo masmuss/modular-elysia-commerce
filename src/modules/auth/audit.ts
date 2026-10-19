@@ -5,6 +5,8 @@ import { authAuditLogsTable } from "@/modules/auth/schema";
 
 export const AUTH_AUDIT_EVENTS = {
 	EMAIL_VERIFIED: "auth.email.verified",
+	OTP_DELIVERY_FAILED: "auth.otp.delivery_failed",
+	OTP_REQUESTED: "auth.otp.requested",
 	PASSWORD_RESET: "auth.password.reset",
 	SESSION_CREATED: "auth.session.created",
 	SESSION_REVOKED: "auth.session.revoked",

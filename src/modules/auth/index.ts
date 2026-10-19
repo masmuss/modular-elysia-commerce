@@ -95,8 +95,23 @@ export const auth = betterAuth({
 		emailOTP({
 			expiresIn: 600,
 			allowedAttempts: 3,
-			async sendVerificationOTP({ email, otp, type }) {
-				await sendOtpEmail(email, otp, type);
+			async sendVerificationOTP({ email, otp, type }, context) {
+				await recordAuthAuditEvent({
+					event: AUTH_AUDIT_EVENTS.OTP_REQUESTED,
+					context: { request: context?.request },
+					metadata: { type },
+				});
+
+				try {
+					await sendOtpEmail(email, otp, type);
+				} catch (error) {
+					await recordAuthAuditEvent({
+						event: AUTH_AUDIT_EVENTS.OTP_DELIVERY_FAILED,
+						context: { request: context?.request },
+						metadata: { type },
+					});
+					throw error;
+				}
 			},
 		}),
 		openAPI(),
