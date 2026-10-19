@@ -2,12 +2,10 @@ import { redisStorage } from "@better-auth/redis-storage";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, openAPI } from "better-auth/plugins";
-import { render } from "react-email";
 import { db } from "@/core/db";
-import { getEnvList, getRequiredEnv } from "@/core/env";
+import { getEnvList } from "@/core/env";
 import { logger } from "@/core/logger";
 import { redis } from "@/core/redis";
-import OTPEmail from "@/emails/otp";
 import { AUTH_AUDIT_EVENTS, recordAuthAuditEvent } from "@/modules/auth/audit";
 import {
 	accountsTable,
@@ -16,7 +14,7 @@ import {
 } from "@/modules/auth/schema";
 import { userRolesTable } from "@/modules/iam/schema";
 import { DEFAULT_ROLE, findRoleIdByName } from "@/modules/iam/seed";
-import { sendEmail } from "@/modules/mailer";
+import { sendOtpEmail } from "@/modules/mailer";
 import { usersTable } from "@/modules/users/schema";
 
 export const auth = betterAuth({
@@ -98,33 +96,7 @@ export const auth = betterAuth({
 			expiresIn: 600,
 			allowedAttempts: 3,
 			async sendVerificationOTP({ email, otp, type }) {
-				const subject =
-					type === "sign-in"
-						? "Your sign in OTP code"
-						: type === "email-verification"
-							? "Your email verification code"
-							: "Your password reset code";
-
-				const html = await render(OTPEmail({ otp }));
-				const { error } = await sendEmail({
-					from: getRequiredEnv("RESEND_EMAIL_FROM"),
-					to: email,
-					subject,
-					html,
-				});
-
-				if (error) {
-					logger.error(
-						{ error, email, type },
-						"failed to send verification OTP email",
-					);
-					throw new Error("failed to send OTP email");
-				}
-
-				logger.info(
-					{ email, type },
-					"verification OTP email sent successfully",
-				);
+				await sendOtpEmail(email, otp, type);
 			},
 		}),
 		openAPI(),
