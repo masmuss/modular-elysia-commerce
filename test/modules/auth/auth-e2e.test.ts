@@ -250,4 +250,54 @@ describeAuthE2E("auth end-to-end", () => {
 			resetPassword,
 		);
 	});
+
+	it("should enforce OTP resend cooldown through the HTTP app layer", async () => {
+		const { app } = await import("@/index");
+		const unknownEmail = `missing-http-${Date.now()}@example.com`;
+		const headers = {
+			"Content-Type": "application/json",
+			"x-forwarded-for": `198.51.100.${++requestCount}`,
+		};
+		const body = JSON.stringify({ email: unknownEmail });
+		const firstResponse = await app.handle(
+			new Request("http://localhost:3000/api/auth/email-otp/request-password-reset", {
+				method: "POST",
+				headers,
+				body,
+			}),
+		);
+		const secondResponse = await app.handle(
+			new Request("http://localhost:3000/api/auth/email-otp/request-password-reset", {
+				method: "POST",
+				headers,
+				body,
+			}),
+		);
+
+		expect(firstResponse.status).toBe(200);
+		expect(secondResponse.status).toBe(429);
+
+		const verificationEmail = `missing-verify-${Date.now()}@example.com`;
+		const verificationResponses = await Promise.all(
+			Array.from({ length: 11 }, (_, index) =>
+				app.handle(
+					new Request("http://localhost:3000/api/auth/sign-in/email-otp", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json",
+							"x-forwarded-for": `203.0.113.${index + 1}`,
+						},
+						body: JSON.stringify({
+							email: verificationEmail,
+							otp: "000000",
+						}),
+					}),
+				),
+			),
+		);
+
+		expect(verificationResponses[verificationResponses.length - 1]?.status).toBe(
+			429,
+		);
+	});
 });

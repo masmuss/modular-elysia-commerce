@@ -5,13 +5,13 @@ import { redis } from "@/core/redis";
 
 const OTP_PATHS = {
 	request: new Set([
-		"/auth/email-otp/send-verification-otp",
-		"/auth/email-otp/request-password-reset",
+		"/api/auth/email-otp/send-verification-otp",
+		"/api/auth/email-otp/request-password-reset",
 	]),
 	verify: new Set([
-		"/auth/sign-in/email-otp",
-		"/auth/email-otp/verify-email",
-		"/auth/email-otp/reset-password",
+		"/api/auth/sign-in/email-otp",
+		"/api/auth/email-otp/verify-email",
+		"/api/auth/email-otp/reset-password",
 	]),
 } as const;
 
@@ -132,4 +132,4 @@ export const checkOtpRateLimit = async (
 
 export const otpRateLimit = new Elysia({
 	name: "plugin.otp-rate-limit",
-}).onBeforeHandle(({ request }) => checkOtpRateLimit(request));
+}).onRequest(({ request }) => checkOtpRateLimit(request));
