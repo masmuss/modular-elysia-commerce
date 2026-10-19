@@ -7,9 +7,19 @@ export const REQUIRED_ENV_KEYS = [
 	"BETTER_AUTH_URL",
 	"BETTER_AUTH_SECRET",
 	"RESEND_API_KEY",
+	"RESEND_EMAIL_FROM",
 ] as const;
 
 export type EnvRecord = Record<string, string | undefined>;
+
+export const getRequiredEnv = (
+	key: string,
+	env: EnvRecord = process.env,
+): string => {
+	const value = env[key];
+	if (!value) throw new Error(`missing required env: ${key}`);
+	return value;
+};
 
 export const findMissingEnvKeys = (
 	env: EnvRecord = process.env,

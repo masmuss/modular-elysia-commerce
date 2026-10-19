@@ -3,14 +3,13 @@ import {
 	type CreateEmailRequestOptions,
 	Resend,
 } from "resend";
+import { getRequiredEnv } from "@/core/env";
 
 let resendInstance: Resend | null = null;
 
 function getResendClient(): Resend {
 	if (!resendInstance) {
-		resendInstance = new Resend(
-			process.env.RESEND_API_KEY || "re_placeholder_key",
-		);
+		resendInstance = new Resend(getRequiredEnv("RESEND_API_KEY"));
 	}
 	return resendInstance;
 }

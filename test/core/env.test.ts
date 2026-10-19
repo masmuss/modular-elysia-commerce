@@ -2,6 +2,7 @@ import { describe, expect, it } from "bun:test";
 import {
 	REQUIRED_ENV_KEYS,
 	findMissingEnvKeys,
+	getRequiredEnv,
 	validateEnvOrThrow,
 } from "@/core/env";
 
@@ -25,6 +26,20 @@ describe("env guard", () => {
 	it("should throw naming the missing keys", () => {
 		expect(() => validateEnvOrThrow({})).toThrow(
 			"missing required env: DB_HOST",
+		);
+	});
+
+	it("should return a required value", () => {
+		expect(
+			getRequiredEnv("RESEND_EMAIL_FROM", {
+				RESEND_EMAIL_FROM: "auth@example.com",
+			}),
+		).toBe("auth@example.com");
+	});
+
+	it("should throw when a required value is missing", () => {
+		expect(() => getRequiredEnv("RESEND_EMAIL_FROM", {})).toThrow(
+			"missing required env: RESEND_EMAIL_FROM",
 		);
 	});
 });

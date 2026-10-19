@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { emailOTP, openAPI } from "better-auth/plugins";
 import { render } from "react-email";
 import { db } from "@/core/db";
+import { getRequiredEnv } from "@/core/env";
 import { logger } from "@/core/logger";
 import OTPEmail from "@/emails/otp";
 import {
@@ -17,9 +18,7 @@ import { usersTable } from "@/modules/users/schema";
 
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
-	secret:
-		process.env.BETTER_AUTH_SECRET ??
-		"test-secret-key-that-is-at-least-32-chars-long",
+	secret: process.env.BETTER_AUTH_SECRET,
 	database: drizzleAdapter(db, {
 		provider: "mysql",
 		usePlural: true,
@@ -45,7 +44,7 @@ export const auth = betterAuth({
 
 				const html = await render(OTPEmail({ otp }));
 				const { error } = await sendEmail({
-					from: process.env.EMAIL_FROM ?? "onboarding@resend.dev",
+					from: getRequiredEnv("RESEND_EMAIL_FROM"),
 					to: email,
 					subject,
 					html,

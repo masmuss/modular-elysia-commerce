@@ -7,7 +7,7 @@ describe("OTPEmail template", () => {
 		const html = await render(OTPEmail({ otp: "987654" }));
 
 		expect(html).toContain("987654");
-		expect(html).toContain("Or, copy and paste this temporary login code:");
+		expect(html).toContain("Use this one-time code to continue:");
 	});
 
 	it("should render magic link when url is provided", async () => {
@@ -15,7 +15,7 @@ describe("OTPEmail template", () => {
 		const html = await render(OTPEmail({ url: targetUrl }));
 
 		expect(html).toContain(targetUrl);
-		expect(html).toContain("Click here to log in with this magic link");
+		expect(html).toContain("Continue securely");
 	});
 
 	it("should render both OTP and magic link when both props are passed", async () => {

@@ -12,7 +12,6 @@ import {
 import tailwindConfig from "../../tailwind.config";
 
 interface OTPEmailProps {
-	loginCode?: string;
 	otp?: string;
 	url?: string;
 }
@@ -22,10 +21,10 @@ export const OTPEmail = ({ otp, url }: OTPEmailProps) => (
 		<Head />
 		<Tailwind config={tailwindConfig}>
 			<Body className="bg-white font-notion">
-				<Preview>Log in with this magic link</Preview>
+				<Preview>Your account security code</Preview>
 				<Container className="px-3 mx-auto">
 					<Heading className="text-[#333] text-[24px] my-10 mx-0 p-0">
-						Login
+						Account verification
 					</Heading>
 					{url && (
 						<Link
@@ -33,37 +32,25 @@ export const OTPEmail = ({ otp, url }: OTPEmailProps) => (
 							target="_blank"
 							className="text-[#2754C5] text-[14px] underline mb-4 block"
 						>
-							Click here to log in with this magic link
+							Continue securely
 						</Link>
 					)}
 					{otp && (
 						<>
 							<Text className="text-[#333] text-[14px] my-6 mb-3.5">
-								Or, copy and paste this temporary login code:
+								Use this one-time code to continue:
 							</Text>
 							<code className="inline-block py-4 px-[4.5%] w-9/10 bg-[#f4f4f4] rounded-md border border-solid border-[#eee] text-[#333]">
 								{otp}
 							</code>
+							<Text className="text-[#898989] text-[12px] mt-3 mb-6">
+								This code expires shortly and can only be used once.
+							</Text>
 						</>
 					)}
 					<Text className="text-[#ababab] text-[14px] mt-3.5 mb-4">
-						If you didn&apos;t try to login, you can safely ignore this email.
-					</Text>
-					<Text className="text-[#ababab] text-[14px] mt-3.5 mb-9.5">
-						Hint: You can set a permanent password in Settings & members → My
-						account.
-					</Text>
-					<Text className="text-[#898989] text-[12px] leading-[22px] mt-3 mb-6">
-						<Link
-							href="https://notion.so"
-							target="_blank"
-							className="text-[#898989] text-[14px] underline"
-						>
-							Notion.so
-						</Link>
-						, the all-in-one-workspace
-						<br />
-						for your notes, tasks, wikis, and databases.
+						If you didn&apos;t request this code, you can safely ignore this
+						email.
 					</Text>
 				</Container>
 			</Body>
