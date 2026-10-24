@@ -1,86 +1,65 @@
 import { afterAll, describe, expect, it } from "bun:test";
-import { eq, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
+import {
+	cleanupAuthUsers,
+	createHandlerPoster,
+	createOtpCapture,
+	getAuthAuditEvents,
+	getSessionCookie,
+} from "../../helpers/auth";
 import { db } from "@/core/db";
 import { redis } from "@/core/redis";
 import { createAuth } from "@/modules/auth";
-import {
-	accountsTable,
-	authAuditLogsTable,
-	sessionsTable,
-	verificationsTable,
-} from "@/modules/auth/schema";
-import { usersTable } from "@/modules/users/schema";
+import { AUTH_AUDIT_EVENTS } from "@/modules/auth/audit";
+import { authAuditLogsTable } from "@/modules/auth/schema";
 
 const runAuthE2E = process.env.AUTH_E2E === "1";
 const describeAuthE2E = runAuthE2E ? describe : describe.skip;
+
 const email = `auth-e2e-${Date.now()}@example.com`;
 const password = "correct horse battery staple";
-let verificationOtp = "";
-let passwordResetOtp = "";
-let previousSessionCookie = "";
 const resetPassword = "new correct horse battery staple";
-let otpSenderType = "";
-let requestCount = 0;
 
-const auth = createAuth(async (recipient, otp) => {
+let requestCount = 0;
+let previousSessionCookie = "";
+
+const capture = createOtpCapture();
+
+const auth = createAuth(async (recipient, otp, type) => {
 	if (recipient !== email) return;
-	if (otpSenderType === "forget-password") {
-		passwordResetOtp = otp;
-		return;
-	}
-	verificationOtp = otp;
+	await capture.send(recipient, otp, type);
 });
 
+/** Better Auth is mounted at /api/auth by the Elysia auth plugin. */
+const postToAuth = createHandlerPoster(
+	(req) => auth.handler(req),
+	"http://localhost:3000/api/auth",
+);
+
+/**
+ * Every call gets a unique client IP so Better Auth session IP tracking and
+ * rate limit keys stay separate per request.
+ */
 const request = async (
 	path: string,
 	body: Record<string, string> = {},
 	headers?: Record<string, string>,
-	method = "POST",
 ): Promise<Response> =>
-	auth.handler(
-		new Request(`http://localhost:3000/api/auth${path}`, {
-			method,
-			headers: {
-				"Content-Type": "application/json",
-				"x-forwarded-for": `192.0.2.${++requestCount}`,
-				...headers,
-			},
-			body: method === "GET" ? undefined : JSON.stringify(body),
-		}),
-	);
+	postToAuth({
+		path,
+		body,
+		headers: {
+			"x-forwarded-for": `192.0.2.${++requestCount}`,
+			...headers,
+		},
+	});
 
-const getSessionCookie = (response: Response): string => {
-	const cookie = response.headers.get("set-cookie");
-	if (!cookie) throw new Error("Expected auth session cookie");
-	return cookie.split(";", 1)[0];
-};
+const postIdToApp = (app: { handle: (request: Request) => Promise<Response> }) =>
+	createHandlerPoster((req) => app.handle(req));
 
 describeAuthE2E("auth end-to-end", () => {
 	afterAll(async () => {
-		const user = await db
-			.select({ id: usersTable.id })
-			.from(usersTable)
-			.where(eq(usersTable.email, email));
-		const userIds = user.map(({ id }) => id);
-
-		if (userIds.length > 0) {
-			await db
-				.delete(sessionsTable)
-				.where(inArray(sessionsTable.userId, userIds));
-			await db
-				.delete(accountsTable)
-				.where(inArray(accountsTable.userId, userIds));
-			await db
-				.delete(authAuditLogsTable)
-				.where(inArray(authAuditLogsTable.userId, userIds));
-			await db
-				.delete(usersTable)
-				.where(inArray(usersTable.id, userIds));
-		}
-
-		await db
-			.delete(verificationsTable)
-			.where(eq(verificationsTable.identifier, email));
+		await cleanupAuthUsers([email]);
 	});
 
 	it("should require verification before password login", async () => {
@@ -91,15 +70,15 @@ describeAuthE2E("auth end-to-end", () => {
 		});
 
 		expect(signUpResponse.status).toBe(200);
+		expect(capture.latest("email-verification")).toBeUndefined();
 
-		otpSenderType = "email-verification";
 		const sendOtpResponse = await request("/email-otp/send-verification-otp", {
 			email,
 			type: "email-verification",
 		});
 
 		expect(sendOtpResponse.status).toBe(200);
-		expect(verificationOtp).toMatch(/^\d+$/);
+		expect(capture.latest("email-verification")).toMatch(/^\d+$/);
 
 		const signInResponse = await request("/sign-in/email", {
 			email,
@@ -110,6 +89,9 @@ describeAuthE2E("auth end-to-end", () => {
 	});
 
 	it("should verify email and allow password login", async () => {
+		const verificationOtp = capture.latest("email-verification");
+		expect(verificationOtp).toBeDefined();
+
 		const invalidVerifyResponse = await request("/email-otp/verify-email", {
 			email,
 			otp: "000000",
@@ -119,7 +101,7 @@ describeAuthE2E("auth end-to-end", () => {
 
 		const verifyResponse = await request("/email-otp/verify-email", {
 			email,
-			otp: verificationOtp,
+			otp: capture.requireLatest("email-verification"),
 		});
 
 		expect(verifyResponse.status).toBe(200);
@@ -137,21 +119,20 @@ describeAuthE2E("auth end-to-end", () => {
 
 		const reusedVerifyResponse = await request("/email-otp/verify-email", {
 			email,
-			otp: verificationOtp,
+			otp: capture.requireLatest("email-verification"),
 		});
 
 		expect(reusedVerifyResponse.status).toBeGreaterThanOrEqual(400);
 	});
 
 	it("should sign in with a valid OTP", async () => {
-		otpSenderType = "sign-in";
 		const sendOtpResponse = await request("/email-otp/send-verification-otp", {
 			email,
 			type: "sign-in",
 		});
 
 		expect(sendOtpResponse.status).toBe(200);
-		expect(verificationOtp).toMatch(/^\d+$/);
+		expect(capture.latest("sign-in")).toMatch(/^\d+$/);
 
 		const invalidSignInResponse = await request("/sign-in/email-otp", {
 			email,
@@ -162,7 +143,7 @@ describeAuthE2E("auth end-to-end", () => {
 
 		const signInResponse = await request("/sign-in/email-otp", {
 			email,
-			otp: verificationOtp,
+			otp: capture.requireLatest("sign-in"),
 		});
 
 		expect(signInResponse.status).toBe(200);
@@ -172,12 +153,12 @@ describeAuthE2E("auth end-to-end", () => {
 	});
 
 	it("should reset the password and revoke previous sessions", async () => {
-		otpSenderType = "forget-password";
 		const sendOtpResponse = await request("/email-otp/request-password-reset", {
 			email,
 		});
 
 		expect(sendOtpResponse.status).toBe(200);
+		const passwordResetOtp = capture.requireLatest("forget-password");
 		expect(passwordResetOtp).toMatch(/^\d+$/);
 
 		const verificationKey = `ecommerce:auth:verification:forget-password-otp-${email}`;
@@ -203,7 +184,8 @@ describeAuthE2E("auth end-to-end", () => {
 		);
 
 		expect(replacementOtpResponse.status).toBe(200);
-		expect(passwordResetOtp).toMatch(/^\d+$/);
+		const replacementOtp = capture.requireLatest("forget-password");
+		expect(replacementOtp).not.toBe(passwordResetOtp);
 
 		const invalidResetResponse = await request("/email-otp/reset-password", {
 			email,
@@ -215,7 +197,7 @@ describeAuthE2E("auth end-to-end", () => {
 
 		const resetResponse = await request("/email-otp/reset-password", {
 			email,
-			otp: passwordResetOtp,
+			otp: replacementOtp,
 			password: resetPassword,
 		});
 
@@ -223,7 +205,7 @@ describeAuthE2E("auth end-to-end", () => {
 
 		const reusedResetResponse = await request("/email-otp/reset-password", {
 			email,
-			otp: passwordResetOtp,
+			otp: replacementOtp,
 			password: resetPassword,
 		});
 
@@ -250,55 +232,49 @@ describeAuthE2E("auth end-to-end", () => {
 		});
 
 		expect(newPasswordResponse.status).toBe(200);
+	});
 
-		const user = await db
-			.select({ id: usersTable.id })
-			.from(usersTable)
-			.where(eq(usersTable.email, email));
-		const auditEvents = await db
-			.select({
-				event: authAuditLogsTable.event,
-				metadata: authAuditLogsTable.metadata,
-			})
-			.from(authAuditLogsTable)
-			.where(eq(authAuditLogsTable.userId, user[0]?.id ?? ""));
+	it("should audit password reset without storing the OTP or password", async () => {
+		const auditEvents = await getAuthAuditEvents([email]);
 
-		expect(auditEvents.map(({ event }) => event)).toContain(
-			"auth.password.reset",
+		const events = auditEvents.map(({ event }) => event);
+		expect(events).toContain(AUTH_AUDIT_EVENTS.PASSWORD_RESET);
+		expect(events).toContain(AUTH_AUDIT_EVENTS.SESSION_REVOKED);
+		expect(JSON.stringify(auditEvents)).not.toContain(
+			capture.requireLatest("forget-password"),
 		);
-		expect(auditEvents.map(({ event }) => event)).toContain(
-			"auth.session.revoked",
+		expect(JSON.stringify(auditEvents)).not.toContain(resetPassword);
+	});
+
+	it("should record the reverse proxy IP on session creation", async () => {
+		const auditEvents = (await getAuthAuditEvents([email])).filter(
+			({ event }) => event === AUTH_AUDIT_EVENTS.SESSION_CREATED,
 		);
+
+		expect(auditEvents.length).toBeGreaterThan(0);
 		expect(
-			JSON.stringify(auditEvents).toLowerCase(),
-		).not.toContain(passwordResetOtp);
-		expect(JSON.stringify(auditEvents).toLowerCase()).not.toContain(
-			resetPassword,
-		);
+			auditEvents.every(({ ipAddress }) => ipAddress?.startsWith("192.0.2.")),
+		).toBe(true);
 	});
 
 	it("should enforce OTP resend cooldown through the HTTP app layer", async () => {
 		const { app } = await import("@/index");
-		const unknownEmail = `missing-http-${Date.now()}@example.com`;
+		const postToApp = postIdToApp(app);
+		const unknownEmail = `missing-${Date.now()}@example.com`;
 		const headers = {
-			"Content-Type": "application/json",
 			"x-forwarded-for": `198.51.100.${++requestCount}`,
 		};
-		const body = JSON.stringify({ email: unknownEmail });
-		const firstResponse = await app.handle(
-			new Request("http://localhost:3000/api/auth/email-otp/request-password-reset", {
-				method: "POST",
-				headers,
-				body,
-			}),
-		);
-		const secondResponse = await app.handle(
-			new Request("http://localhost:3000/api/auth/email-otp/request-password-reset", {
-				method: "POST",
-				headers,
-				body,
-			}),
-		);
+
+		const firstResponse = await postToApp({
+			path: "/api/auth/email-otp/request-password-reset",
+			body: { email: unknownEmail },
+			headers,
+		});
+		const secondResponse = await postToApp({
+			path: "/api/auth/email-otp/request-password-reset",
+			body: { email: unknownEmail },
+			headers,
+		});
 
 		expect(firstResponse.status).toBe(200);
 		expect(secondResponse.status).toBe(429);
@@ -306,25 +282,22 @@ describeAuthE2E("auth end-to-end", () => {
 		const verificationEmail = `missing-verify-${Date.now()}@example.com`;
 		const verificationResponses = await Promise.all(
 			Array.from({ length: 11 }, (_, index) =>
-				app.handle(
-					new Request("http://localhost:3000/api/auth/sign-in/email-otp", {
-						method: "POST",
-						headers: {
-							"Content-Type": "application/json",
-							"x-forwarded-for": `203.0.113.${index + 1}`,
-						},
-						body: JSON.stringify({
-							email: verificationEmail,
-							otp: "000000",
-						}),
-					}),
-				),
+				postToApp({
+					path: "/api/auth/sign-in/email-otp",
+					headers: {
+						"x-forwarded-for": `203.0.113.${index + 1}`,
+					},
+					body: {
+						email: verificationEmail,
+						otp: "000000",
+					},
+				}),
 			),
 		);
 
-		expect(verificationResponses[verificationResponses.length - 1]?.status).toBe(
-			429,
-		);
+		expect(
+			verificationResponses[verificationResponses.length - 1]?.status,
+		).toBe(429);
 	});
 
 	it("should audit OTP delivery failures without storing the OTP", async () => {
@@ -332,7 +305,7 @@ describeAuthE2E("auth end-to-end", () => {
 		const previousFailureEvents = await db
 			.select({ event: authAuditLogsTable.event })
 			.from(authAuditLogsTable)
-			.where(eq(authAuditLogsTable.event, "auth.otp.delivery_failed"));
+			.where(eq(authAuditLogsTable.event, AUTH_AUDIT_EVENTS.OTP_DELIVERY_FAILED));
 		const failingAuth = createAuth(async () => {
 			throw new Error("simulated email provider failure");
 		});
@@ -360,7 +333,9 @@ describeAuthE2E("auth end-to-end", () => {
 				metadata: authAuditLogsTable.metadata,
 			})
 			.from(authAuditLogsTable)
-			.where(eq(authAuditLogsTable.event, "auth.otp.delivery_failed"));
+			.where(
+				eq(authAuditLogsTable.event, AUTH_AUDIT_EVENTS.OTP_DELIVERY_FAILED),
+			);
 		const newFailureEvents = auditEvents.slice(previousFailureEvents.length);
 		const latestFailure = newFailureEvents[newFailureEvents.length - 1];
 

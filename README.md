@@ -138,6 +138,15 @@ Run all unit and integration tests using Bun's built-in test runner:
 bun test
 ```
 
+Auth suites that need real infrastructure are gated behind env flags:
+
+| Command | Requirement | What it covers |
+| --- | --- | --- |
+| `bun run test:smoke:auth` | The Docker app running on `localhost:3000` (`AUTH_HTTP_E2E=1`) | `/health`, malformed sign-in, unauthenticated session lookups, safe unknown-email reset, OTP resend cooldown, per-proxy-IP rate limits, `x-real-ip` fallback |
+| `bun run test:e2e:auth` | MySQL + Redis (`AUTH_E2E=1`) | Full auth lifecycle: sign-up → verification → sign-in → OTP sign-in → password reset → session revocation → audit logs |
+
+Auth operations, and auth hardening guidance (audit monitoring, secret rotation, Redis fail-open decision, reverse proxy `x-forwarded-for` testing), are documented in [`docs/AUTH_RUNBOOK.md`](docs/AUTH_RUNBOOK.md).
+
 ---
 
 ## 📄 License
