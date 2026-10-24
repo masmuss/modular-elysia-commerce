@@ -7,9 +7,11 @@ A modular monolith e-commerce backend API built with **Bun** and **Elysia.js**. 
 ## 🚀 Key Features
 
 - **Modular Monolith & Event-Driven**: Clean domain separation. Cross-module orchestration (e.g., checkout and stock reservation) handled asynchronously via an in-memory `EventBus`.
-- **Authentication & IAM (RBAC)**: Powered by [Better Auth](https://www.better-auth.com/) with fine-grained permission checks via an Elysia IAM macro (`iam: { permission: "..." }`).
+- **Authentication & IAM (RBAC)**: Powered by [Better Auth](https://www.better-auth.com/) with support for Email & Password and Email OTP, plus fine-grained permission checks via an Elysia IAM macro (`iam: { permission: "..." }`).
+- **Transactional Emails**: Styled responsive email templates built with [React Email](https://react.email/) and delivered via [Resend](https://resend.com/).
 - **Database & Migrations**: [Drizzle ORM](https://orm.drizzle.team/) with MySQL 8.4 (schema generation, migrations, and database seeding).
 - **Rate Limiting**: Global rate limiting (100 req/min) and auth rate limiting (10 req/min) via `elysia-rate-limit`.
+- **Session Storage**: Redis secondary storage for fast session and auth rate-limit access, with MySQL session persistence.
 - **Validation & OpenAPI Documentation**: TypeBox schema validation with auto-generated Swagger/OpenAPI interactive docs at `/docs`.
 - **Structured Logging**: Production-grade JSON logging using Pino with HTTP request logging middleware.
 - **Containerized Development**: Ready-to-use Docker Compose setup for development (App + MySQL).
@@ -24,9 +26,11 @@ A modular monolith e-commerce backend API built with **Bun** and **Elysia.js**. 
 ├── scripts/                # Database seed and utility scripts
 ├── src/
 │   ├── core/               # Shared core (Database, EventBus, Logger, Env Guard)
+│   ├── emails/             # React Email templates (OTP, Magic Link)
 │   ├── modules/            # Domain modules
-│   │   ├── auth/           # Better Auth routes & OpenAPI specs
+│   │   ├── auth/           # Better Auth routes, OTP config & OpenAPI specs
 │   │   ├── iam/            # Role & permission service + seed definitions
+│   │   ├── mailer/         # Email delivery client (Resend)
 │   │   ├── orders/         # Checkout flow, order lifecycle & listeners
 │   │   ├── products/       # Product catalog, stock reservation & listeners
 │   │   └── users/          # User profile management
@@ -74,6 +78,11 @@ DB_ROOT_PASSWORD=devrootsecret
 
 BETTER_AUTH_URL=http://localhost:3000
 BETTER_AUTH_SECRET=replace-with-a-random-32-character-secret
+BETTER_AUTH_TRUSTED_ORIGINS=http://localhost:3000
+REDIS_URL=redis://localhost:6379
+
+RESEND_API_KEY=re_your_api_key_here
+RESEND_EMAIL_FROM=no-reply@your-verified-domain.com
 ```
 
 ### 3. Start Database (Docker)
@@ -128,6 +137,15 @@ Run all unit and integration tests using Bun's built-in test runner:
 ```bash
 bun test
 ```
+
+Auth suites that need real infrastructure are gated behind env flags:
+
+| Command | Requirement | What it covers |
+| --- | --- | --- |
+| `bun run test:smoke:auth` | The Docker app running on `localhost:3000` (`AUTH_HTTP_E2E=1`) | `/health`, malformed sign-in, unauthenticated session lookups, safe unknown-email reset, OTP resend cooldown, per-proxy-IP rate limits, `x-real-ip` fallback |
+| `bun run test:e2e:auth` | MySQL + Redis (`AUTH_E2E=1`) | Full auth lifecycle: sign-up → verification → sign-in → OTP sign-in → password reset → session revocation → audit logs |
+
+Auth operations, and auth hardening guidance (audit monitoring, secret rotation, Redis fail-open decision, reverse proxy `x-forwarded-for` testing), are documented in [`docs/AUTH_RUNBOOK.md`](docs/AUTH_RUNBOOK.md).
 
 ---
 

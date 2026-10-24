@@ -1,12 +1,35 @@
 export const REQUIRED_ENV_KEYS = [
 	"DB_HOST",
+	"DB_PORT",
 	"DB_DATABASE",
 	"DB_USER",
+	"DB_PASSWORD",
 	"BETTER_AUTH_URL",
 	"BETTER_AUTH_SECRET",
+	"REDIS_URL",
+	"RESEND_API_KEY",
+	"RESEND_EMAIL_FROM",
 ] as const;
 
 export type EnvRecord = Record<string, string | undefined>;
+
+export const getRequiredEnv = (
+	key: string,
+	env: EnvRecord = process.env,
+): string => {
+	const value = env[key];
+	if (!value) throw new Error(`missing required env: ${key}`);
+	return value;
+};
+
+export const getEnvList = (
+	key: string,
+	env: EnvRecord = process.env,
+): string[] =>
+	(env[key] ?? "")
+		.split(",")
+		.map((value) => value.trim())
+		.filter(Boolean);
 
 export const findMissingEnvKeys = (
 	env: EnvRecord = process.env,

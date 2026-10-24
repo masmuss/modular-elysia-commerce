@@ -1,9 +1,11 @@
 import Elysia from "elysia";
 import { auth } from "@/modules/auth";
+import { otpRateLimit } from "@/plugins/otp-rate-limit";
 import { authRateLimit } from "@/plugins/rate-limit";
 
 export const authRoutes = new Elysia({ name: "plugin.auth.routes" })
 	.use(authRateLimit)
+	.use(otpRateLimit)
 	.mount(auth.handler);
 
 export const getSession = async (headers: Headers) =>

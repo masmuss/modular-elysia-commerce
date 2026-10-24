@@ -20,12 +20,24 @@ services:
       timeout: 3s
       retries: 20
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   app:
     build:
       context: ..
       dockerfile: docker/Dockerfile
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       DB_HOST: mysql
@@ -35,6 +47,10 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-devsecret}
       BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
       BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:?set BETTER_AUTH_SECRET in .env.local}
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS:-http://localhost:3000}
+      REDIS_URL: redis://redis:6379
+      RESEND_API_KEY: ${RESEND_API_KEY:?set RESEND_API_KEY in .env.local}
+      RESEND_EMAIL_FROM: ${RESEND_EMAIL_FROM:?set RESEND_EMAIL_FROM in .env.local}
       LOG_LEVEL: ${LOG_LEVEL:-debug}
     ports:
       - "${APP_PORT:-3000}:3000"
